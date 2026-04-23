@@ -1,8 +1,8 @@
-# 🚀 Astelta API v2
+# Astelta API v2
 
 A comprehensive Go-based REST API with advanced monitoring and metrics capabilities.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [API Endpoints](#api-endpoints)
@@ -12,18 +12,18 @@ A comprehensive Go-based REST API with advanced monitoring and metrics capabilit
 - [Usage](#usage)
 - [Development](#development)
 
-## ✨ Features
+## Features
 
-- **PostgreSQL Integration**: Robust database connectivity with connection pooling
-- **Health Monitoring**: Multiple health check endpoints for different monitoring levels
-- **Comprehensive Metrics**: Detailed system and database performance metrics
-- **CORS Support**: Cross-origin resource sharing enabled for web applications
-- **Environment Configuration**: Flexible configuration via environment variables or `.env` file
-- **SSL/TLS Support**: Secure database connections with certificate validation
+- PostgreSQL Integration: Robust database connectivity with connection pooling
+- Health Monitoring: Multiple health check endpoints for different monitoring levels
+- Comprehensive Metrics: Detailed system and database performance metrics
+- CORS Support: Cross-origin resource sharing enabled for web applications
+- Environment Configuration: Flexible configuration via environment variables or `.env` file
+- SSL/TLS Support: Secure database connections with certificate validation
 
-## 🔗 API Endpoints
+## API Endpoints
 
-### 🏥 Health Check
+### Health Check
 **GET** `/health`
 
 Basic health check endpoint for load balancers and monitoring systems.
@@ -36,7 +36,7 @@ Content-Type: text/plain
 ok
 ```
 
-### 📊 Metrics
+### Metrics
 **GET** `/metrics`
 
 Comprehensive metrics endpoint returning detailed JSON data about system performance.
@@ -79,7 +79,7 @@ Comprehensive metrics endpoint returning detailed JSON data about system perform
 - `memory_stats`: Detailed memory usage statistics
 - `timestamp`: When metrics were collected
 
-### 🗄️ Database Status
+### Database Status
 **GET** `/db-status`
 
 Database-specific status check that queries PostgreSQL version and connection health.
@@ -92,22 +92,22 @@ Content-Type: text/plain
 API działa. PostgreSQL version: PostgreSQL 15.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 11.3.1, 64-bit
 ```
 
-## 📈 Metrics Dashboard
+## Metrics Dashboard
 
 The project includes an interactive HTML dashboard (`readme.html`) that provides:
 
-- **Real-time Metrics Display**: Live updating dashboard with key metrics
-- **Endpoint Testing**: Direct access to all API endpoints
-- **Response Visualization**: Formatted JSON responses with syntax highlighting
-- **Performance Monitoring**: Request latency measurements
-- **Memory Analysis**: Detailed memory usage breakdown
+- Real-time Metrics Display: Live updating dashboard with key metrics
+- Endpoint Testing: Direct access to all API endpoints
+- Response Visualization: Formatted JSON responses with syntax highlighting
+- Performance Monitoring: Request latency measurements
+- Memory Analysis: Detailed memory usage breakdown
 
 To use the dashboard:
 1. Start the API server
 2. Open `readme.html` in a web browser
 3. The dashboard will automatically fetch and display metrics
 
-## 🛠️ Installation
+## Installation
 
 ### Prerequisites
 - Go 1.19 or later
@@ -124,7 +124,7 @@ go build -o astelta-api-v2 main.go
 ./astelta-api-v2
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Configure the API using environment variables or a `.env` file:
 
@@ -156,7 +156,7 @@ DB_PASSWORD=mypassword
 DB_NAME=mydatabase
 ```
 
-## 🚀 Usage
+## Usage
 
 ### Starting the Server
 ```bash
@@ -182,7 +182,7 @@ curl http://localhost:8097/metrics
 curl http://localhost:8097/db-status
 ```
 
-## 🧪 Development
+## Development
 
 ### Project Structure
 ```
@@ -197,11 +197,11 @@ curl http://localhost:8097/db-status
 
 ### Key Components
 
-- **Database Connection**: PostgreSQL connection with SSL support
-- **HTTP Handlers**: RESTful endpoints with CORS middleware
-- **Metrics Collection**: Runtime statistics and database monitoring
-- **Configuration Management**: Environment variable parsing
-- **Error Handling**: Comprehensive error responses
+- Database Connection: PostgreSQL connection with SSL support
+- HTTP Handlers: RESTful endpoints with CORS middleware
+- Metrics Collection: Runtime statistics and database monitoring
+- Configuration Management: Environment variable parsing
+- Error Handling: Comprehensive error responses
 
 ### Adding New Endpoints
 
@@ -217,18 +217,18 @@ func myHandler(w http.ResponseWriter, r *http.Request) {
 http.HandleFunc("/my-endpoint", corsMiddleware(myHandler))
 ```
 
-## 📊 Monitoring & Observability
+## Monitoring & Observability
 
 The API provides multiple levels of monitoring:
 
-- **Health Checks**: Basic service availability
-- **Metrics**: Detailed performance and resource usage data
-- **Database Monitoring**: Connection health and query performance
-- **Memory Profiling**: Go runtime memory statistics
+- Health Checks: Basic service availability
+- Metrics: Detailed performance and resource usage data
+- Database Monitoring: Connection health and query performance
+- Memory Profiling: Go runtime memory statistics
 
 Use these endpoints with monitoring tools like Prometheus, Grafana, or custom dashboards.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -236,11 +236,11 @@ Use these endpoints with monitoring tools like Prometheus, Grafana, or custom da
 4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-**Built with ❤️ using Go and PostgreSQL**</content>
+Built with Go and PostgreSQL</content>
 <parameter name="filePath">c:\Users\Aurie\Documents\GitHub\Astelta-apiV2\README.md
