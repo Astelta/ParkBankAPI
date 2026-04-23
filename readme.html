@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+        body {
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0; 
+        }        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        #container {
+            max-width: 600px;
+            margin: 0 auto;
+            justify-content: center;
+            position: relative;
+            text-align: center;
+            align-items: center;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 10%;
+        }
+    </style>
+</head>
+<body>
+    <div name="container">
+    <h1>Health Check</h1>
+    <p id="response">Checking health...</p>
+    <p id="latency">Latency: </p>
+
+    <h1> API Endpoints</h1>
+    <ul>
+        <li><a href="http://localhost:8097/health">Health Check</a></li>
+        <li><a href="http://localhost:8097/metrics">Metrics</a></li>
+    </ul>
+</div>
+</body>
+    <script>
+        const apiUrl = 'http://localhost:8097/health';
+        calculateLatency = () => {
+            const startTime = performance.now();
+            fetch(apiUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const endTime = performance.now();
+                    const latency = endTime - startTime;
+                    console.log('Latency:', latency, 'ms');
+                    document.getElementById('latency').textContent = `Latency: ${latency.toFixed(2)} ms`;
+                    document.getElementById('response').textContent = `Health Check Response: ${data}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching latency:', error);
+                    document.getElementById('latency').textContent = 'Latency: Error fetching latency';
+                });
+        };
+        window.onload = function() {
+            calculateLatency();
+        };
+    </script>
+</html>

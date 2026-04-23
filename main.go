@@ -3,12 +3,15 @@ package main
 import (
 	"bufio"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"runtime"
 	"strings"
+	"time"
 
 	// Znak "_" (blank identifier) przed importem oznacza, że importujemy
 	// ten pakiet wyłącznie dla jego "efektów ubocznych".
@@ -22,6 +25,7 @@ import (
 // W aplikacjach produkcyjnych zazwyczaj wstrzykuje się ją jako zależność,
 // ale dla czystości tego przykładu używamy zmiennej na poziomie pakietu.
 var db *sql.DB
+var startTime time.Time
 
 func getEnv(key, defaultValue string) string {
 	value := os.Getenv(key)
@@ -60,6 +64,7 @@ func loadDotEnv(path string) {
 }
 
 func main() {
+	startTime = time.Now()
 	loadDotEnv(".env")
 	// 1. Definiowanie łańcucha połączenia (Data Source Name - DSN)
 	// Zastąp te wartości swoimi danymi do zdalnej bazy PostgreSQL.
@@ -131,6 +136,8 @@ func main() {
 	// 3. Rejestracja endpointu API
 	// Wiążemy ścieżkę "/db-status" z naszą funkcją statusHandler.
 	http.HandleFunc("/db-status", statusHandler)
+	http.HandleFunc("/health", corsMiddleware(healthHandler))
+	http.HandleFunc("/metrics", corsMiddleware(metricsHandler))
 
 	// 4. Uruchomienie serwera HTTP
 	port := ":8097"
@@ -181,6 +188,132 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err = rows.Err(); err != nil {
 		http.Error(w, "Error reading rows", http.StatusInternalServerError)
+		return
+	}
+}
+
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next(w, r)
+	}
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	status := "ok"
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(status))
+}
+
+// MetricsResponse represents the JSON structure for metrics endpoint
+type MetricsResponse struct {
+	Uptime         string        `json:"uptime"`
+	DatabaseStatus string        `json:"database_status"`
+	DatabaseLatency time.Duration `json:"database_latency_ms"`
+	GoVersion      string        `json:"go_version"`
+	MemoryStats    MemoryStats   `json:"memory_stats"`
+	Timestamp      time.Time     `json:"timestamp"`
+}
+
+// MemoryStats represents memory usage information
+type MemoryStats struct {
+	Alloc        uint64 `json:"alloc_bytes"`
+	TotalAlloc   uint64 `json:"total_alloc_bytes"`
+	Sys          uint64 `json:"sys_bytes"`
+	Lookups      uint64 `json:"lookups"`
+	Mallocs      uint64 `json:"mallocs"`
+	Frees        uint64 `json:"frees"`
+	HeapAlloc    uint64 `json:"heap_alloc_bytes"`
+	HeapSys      uint64 `json:"heap_sys_bytes"`
+	HeapIdle     uint64 `json:"heap_idle_bytes"`
+	HeapInuse    uint64 `json:"heap_inuse_bytes"`
+	HeapReleased uint64 `json:"heap_released_bytes"`
+	HeapObjects  uint64 `json:"heap_objects"`
+	StackInuse   uint64 `json:"stack_inuse_bytes"`
+	StackSys     uint64 `json:"stack_sys_bytes"`
+	GCSys        uint64 `json:"gc_sys_bytes"`
+	NextGC       uint64 `json:"next_gc_bytes"`
+	LastGC       string `json:"last_gc"`
+	NumGC        uint32 `json:"num_gc"`
+}
+
+func metricsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Calculate uptime
+	uptime := time.Since(startTime)
+
+	// Check database status and measure latency
+	dbStatus := "disconnected"
+	var dbLatency time.Duration
+
+	if db != nil {
+		start := time.Now()
+		err := db.Ping()
+		dbLatency = time.Since(start)
+
+		if err == nil {
+			dbStatus = "connected"
+		} else {
+			dbStatus = "error"
+			dbLatency = 0
+		}
+	}
+
+	// Get memory statistics
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	memoryStats := MemoryStats{
+		Alloc:        m.Alloc,
+		TotalAlloc:   m.TotalAlloc,
+		Sys:          m.Sys,
+		Lookups:      m.Lookups,
+		Mallocs:      m.Mallocs,
+		Frees:        m.Frees,
+		HeapAlloc:    m.HeapAlloc,
+		HeapSys:      m.HeapSys,
+		HeapIdle:     m.HeapIdle,
+		HeapInuse:    m.HeapInuse,
+		HeapReleased: m.HeapReleased,
+		HeapObjects:  m.HeapObjects,
+		StackInuse:   m.StackInuse,
+		StackSys:     m.StackSys,
+		GCSys:        m.GCSys,
+		NextGC:       m.NextGC,
+		LastGC:       time.Unix(0, int64(m.LastGC)).Format(time.RFC3339),
+		NumGC:        m.NumGC,
+	}
+
+	// Create response
+	response := MetricsResponse{
+		Uptime:         uptime.String(),
+		DatabaseStatus: dbStatus,
+		DatabaseLatency: dbLatency,
+		GoVersion:      runtime.Version(),
+		MemoryStats:    memoryStats,
+		Timestamp:      time.Now(),
+	}
+
+	// Set JSON content type
+	w.Header().Set("Content-Type", "application/json")
+
+	// Encode and send response
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Error encoding metrics", http.StatusInternalServerError)
 		return
 	}
 }
