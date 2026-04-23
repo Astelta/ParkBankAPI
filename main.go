@@ -217,12 +217,12 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 // MetricsResponse represents the JSON structure for metrics endpoint
 type MetricsResponse struct {
-	Uptime         string        `json:"uptime"`
-	DatabaseStatus string        `json:"database_status"`
+	Uptime          string        `json:"uptime"`
+	DatabaseStatus  string        `json:"database_status"`
 	DatabaseLatency time.Duration `json:"database_latency_ms"`
-	GoVersion      string        `json:"go_version"`
-	MemoryStats    MemoryStats   `json:"memory_stats"`
-	Timestamp      time.Time     `json:"timestamp"`
+	GoVersion       string        `json:"go_version"`
+	MemoryStats     MemoryStats   `json:"memory_stats"`
+	Timestamp       time.Time     `json:"timestamp"`
 }
 
 // MemoryStats represents memory usage information
@@ -300,12 +300,12 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create response
 	response := MetricsResponse{
-		Uptime:         uptime.String(),
-		DatabaseStatus: dbStatus,
+		Uptime:          uptime.String(),
+		DatabaseStatus:  dbStatus,
 		DatabaseLatency: dbLatency,
-		GoVersion:      runtime.Version(),
-		MemoryStats:    memoryStats,
-		Timestamp:      time.Now(),
+		GoVersion:       runtime.Version(),
+		MemoryStats:     memoryStats,
+		Timestamp:       time.Now(),
 	}
 
 	// Set JSON content type
