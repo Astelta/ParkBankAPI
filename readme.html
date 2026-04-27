@@ -4,254 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Astelta API v2 - Metrics Dashboard</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #ACD2ED;
-            color: #0A210F;
-            line-height: 1.5;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            background: #0A210F;
-            color: #ACD2ED;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-        .header p {
-            font-size: 1em;
-            opacity: 0.8;
-        }
-        .metrics-section {
-            background: white;
-            border: 2px solid #14591D;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .metrics-section h2 {
-            color: #0A210F;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.4em;
-        }
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        .metric-card {
-            background: #ACD2ED;
-            border: 1px solid #14591D;
-            border-radius: 6px;
-            padding: 15px;
-            text-align: center;
-        }
-        .metric-card h4 {
-            color: #0A210F;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        .metric-value {
-            font-size: 1.3em;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            color: #14591D;
-        }
-        .status-connected {
-            color: #0A210F;
-        }
-        .status-error {
-            color: #ACD2ED;
-            background: #14591D;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-        .status-disconnected {
-            color: #ACD2ED;
-            background: #0A210F;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-        .metric-details {
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #14591D;
-        }
-        .memory-breakdown {
-            margin-top: 10px;
-            font-size: 0.8em;
-        }
-        .memory-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 0;
-            border-bottom: 1px solid #14591D;
-        }
-        .memory-item:last-child {
-            border-bottom: none;
-        }
-        .endpoints-section {
-            background: white;
-            border: 2px solid #14591D;
-            border-radius: 8px;
-            padding: 20px;
-        }
-        .endpoints-section h2 {
-            color: #0A210F;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.4em;
-        }
-        .endpoints-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        .endpoint-card {
-            background: #ACD2ED;
-            border: 1px solid #14591D;
-            border-radius: 6px;
-            padding: 15px;
-        }
-        .endpoint-card h3 {
-            color: #0A210F;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-        .endpoint-card .method {
-            display: inline-block;
-            background: #14591D;
-            color: #ACD2ED;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .endpoint-card .url {
-            font-family: 'Courier New', monospace;
-            background: white;
-            padding: 8px;
-            border-radius: 3px;
-            margin-bottom: 10px;
-            color: #0A210F;
-            font-weight: bold;
-            border: 1px solid #14591D;
-        }
-        .endpoint-card p {
-            margin-bottom: 10px;
-            color: #0A210F;
-            font-size: 0.9em;
-        }
-        .response-display {
-            background: #0A210F;
-            color: #ACD2ED;
-            border-radius: 4px;
-            padding: 12px;
-            margin-top: 10px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 0.8em;
-        }
-        .loading {
-            text-align: center;
-            color: #14591D;
-        }
-        .buttons {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .btn {
-            background: #14591D;
-            color: #ACD2ED;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            display: inline-block;
-            margin: 0 8px;
-            cursor: pointer;
-            font-weight: bold;
-            border: 1px solid #0A210F;
-        }
-        .btn:hover {
-            background: #0A210F;
-        }
-        .btn-secondary {
-            background: #ACD2ED;
-            color: #0A210F;
-            border: 1px solid #14591D;
-        }
-        .btn-secondary:hover {
-            background: #14591D;
-            color: #ACD2ED;
-        }
-    </style>
+    <link rel="stylesheet" href="./readmeassets/style.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Astelta API v2</h1>
+            <h1>Park Bank API 0.1</h1>
             <p>API Monitoring Dashboard</p>
         </div>
 
         <div class="metrics-section">
             <h2>System Metrics</h2>
+            <p class="metrics-summary">Live API health, runtime telemetry, and memory details for monitoring performance.</p>
             <div class="metrics-grid" id="metrics-dashboard">
                 <div class="metric-card">
                     <h4>Server Uptime</h4>
                     <div class="metric-value" id="uptime">--:--:--</div>
-                    <div class="metric-details">Time since start</div>
                 </div>
 
                 <div class="metric-card">
-                    <h4>Database Status</h4>
-                    <div class="metric-value" id="db-status">Checking...</div>
-                    <div class="metric-details">Connection health</div>
+                    <h4>Service Status</h4>
+                    <div class="metric-value status-chip status-disconnected" id="service-status">Checking...</div>
                 </div>
 
                 <div class="metric-card">
                     <h4>Database Latency</h4>
                     <div class="metric-value" id="db-latency">-- ms</div>
-                    <div class="metric-details">Ping response time</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Health API Latency</h4>
+                    <div class="metric-value" id="health-latency">-- ms</div>
+                    <div class="metric-details">Round-trip time for /health</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>CPU Cores</h4>
+                    <div class="metric-value" id="cpu-count">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Goroutines</h4>
+                    <div class="metric-value" id="goroutines">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Max Procs</h4>
+                    <div class="metric-value" id="max-procs">--</div>
                 </div>
 
                 <div class="metric-card">
                     <h4>Memory Usage</h4>
-                    <div class="metric-value" id="memory-usage">-- MB</div>
-                    <div class="metric-details">Current heap allocation</div>
+                    <div class="metric-value" id="memory-usage">--</div>
                     <div class="memory-breakdown" id="memory-breakdown">
-                        <!-- Memory details will be populated here -->
                     </div>
                 </div>
 
                 <div class="metric-card">
                     <h4>Garbage Collections</h4>
                     <div class="metric-value" id="gc-count">--</div>
-                    <div class="metric-details">GC cycles completed</div>
                 </div>
 
                 <div class="metric-card">
                     <h4>Go Version</h4>
                     <div class="metric-value" id="go-version">--</div>
-                    <div class="metric-details">Runtime version</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Last Updated</h4>
+                    <div class="metric-value" id="last-updated">--</div>
+                    <div class="metric-details">Most recent refresh time</div>
                 </div>
             </div>
         </div>
@@ -261,113 +83,92 @@
             <div class="endpoints-grid">
                 <div class="endpoint-card">
                     <h3>Health Check</h3>
-                    <span class="method">GET</span>
+                    <span class="method method-get">GET</span>
                     <div class="url">/health</div>
+                    <span class="auth-badge public">Public</span>
                     <p>Basic health check endpoint that returns a simple "ok" status. Used for load balancer health checks and basic service monitoring.</p>
-                    <div id="health-response" class="response-display loading">Loading...</div>
+                    <div class="payload-section">
+                        <strong>Payload:</strong> None
+                    </div>
+                    <div class="response-display">ok</div>
                 </div>
 
                 <div class="endpoint-card">
                     <h3>Metrics</h3>
-                    <span class="method">GET</span>
+                    <span class="method method-get">GET</span>
                     <div class="url">/metrics</div>
+                    <span class="auth-badge public">Public</span>
                     <p>Comprehensive metrics endpoint returning detailed JSON data about system performance, database connectivity, memory usage, and runtime statistics.</p>
-                    <div id="metrics-response" class="response-display loading">Loading...</div>
+                    <div class="payload-section">
+                        <strong>Payload:</strong> None
+                    </div>
+                    <div class="response-display">{
+  "uptime": "1h23m45s",
+  "db_latency_ms": 12,
+  "health_latency_ms": 0.5,
+  "cpu_count": 8,
+  "goroutines": 15,
+  "max_procs": 8,
+  "memory_alloc_mb": 45.2,
+  "memory_total_mb": 120.5,
+  "memory_sys_mb": 55.8,
+  "gc_count": 3,
+  "go_version": "go1.25.3"
+}</div>
                 </div>
 
                 <div class="endpoint-card">
-                    <h3>Database Status</h3>
-                    <span class="method">GET</span>
-                    <div class="url">/db-status</div>
-                    <p>Database-specific status check that queries the PostgreSQL version and connection health. Returns database version information.</p>
-                    <div id="db-status-response" class="response-display loading">Loading...</div>
+                    <h3>User Registration</h3>
+                    <span class="method method-post">POST</span>
+                    <div class="url">/register</div>
+                    <span class="auth-badge public">Public</span>
+                    <p>User registration endpoint that creates a new user account. Requires JSON payload with username and password fields. Passwords are securely hashed before storage.</p>
+                    <div class="payload-section">
+                        <strong>Payload (JSON):</strong>
+                        <pre>{
+  "username": "example_user",
+  "password": "secure_password123"
+}</pre>
+                    </div>
+                    <div class="response-display">User registered successfully</div>
+                </div>
+
+                <div class="endpoint-card">
+                    <h3>User Login</h3>
+                    <span class="method method-post">POST</span>
+                    <div class="url">/login</div>
+                    <span class="auth-badge public">Public</span>
+                    <p>Authenticates a user and returns a JWE token for subsequent authenticated requests. The token is AES-encrypted and contains user info with a 24-hour expiration.</p>
+                    <div class="payload-section">
+                        <strong>Payload (JSON):</strong>
+                        <pre>{
+  "username": "example_user",
+  "password": "secure_password123"
+}</pre>
+                    </div>
+                    <div class="response-display">{
+  "token": "eyJhbGciOiJBRVNFTC1HQ00iLCJlbmMiOiJBMjU2R0NNIiwidmYiOiJBUkQxMjM0NTY3ODkwIiwiY3QiOiJBMTIzNDU2Nzg5MCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImV4YW1wbGVfdXNlciIsInRva2VuIjoiZXhhbXBsZV90b2tlbl8xMjM0NTY3ODkiLCJleHBpcmF0aW9uIjoxNzA0OTY3NjAwfQ.abc123def456..."
+}</div>
+                </div>
+
+                <div class="endpoint-card auth-required">
+                    <h3>User Profile</h3>
+                    <span class="method method-get">GET</span>
+                    <div class="url">/profile</div>
+                    <span class="auth-badge auth">Auth Required</span>
+                    <p>Returns the authenticated user's profile information including user ID and balance. Requires a valid JWE token in the Authorization header.</p>
+                    <div class="payload-section">
+                        <strong>Headers:</strong>
+                        <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
+                    </div>
+                    <div class="response-display">{
+  "id": 1,
+  "balance": 100.50
+}</div>
                 </div>
             </div>
         </div>
-
-        <div class="buttons">
-            <button class="btn" onclick="fetchAllEndpoints()">Refresh All Data</button>
-            <button class="btn btn-secondary" onclick="openInBrowser()">Open API in Browser</button>
-        </div>
     </div>
-
-    <script>
-        const baseUrl = 'http://localhost:8097';
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        function formatDuration(duration) {
-            // Convert nanoseconds to milliseconds for display
-            return (duration / 1000000).toFixed(2) + ' ms';
-        }
-
-        function updateMetricsDashboard(data) {
-            document.getElementById('uptime').textContent = data.uptime || 'N/A';
-            document.getElementById('db-status').textContent = data.database_status || 'Unknown';
-            document.getElementById('db-status').className = 'metric-value status-' + (data.database_status || 'disconnected').toLowerCase();
-            document.getElementById('db-latency').textContent = data.database_latency_ms ? formatDuration(data.database_latency_ms) : '-- ms';
-            document.getElementById('memory-usage').textContent = data.memory_stats ? formatBytes(data.memory_stats.heap_alloc_bytes) : '-- MB';
-            document.getElementById('gc-count').textContent = data.memory_stats ? data.memory_stats.num_gc : '--';
-            document.getElementById('go-version').textContent = data.go_version || '--';
-
-            // Update memory breakdown
-            const memoryBreakdown = document.getElementById('memory-breakdown');
-            if (data.memory_stats) {
-                memoryBreakdown.innerHTML = `
-                    <div class="memory-item"><span>Heap Alloc:</span><span>${formatBytes(data.memory_stats.heap_alloc_bytes)}</span></div>
-                    <div class="memory-item"><span>Heap Sys:</span><span>${formatBytes(data.memory_stats.heap_sys_bytes)}</span></div>
-                    <div class="memory-item"><span>Stack Inuse:</span><span>${formatBytes(data.memory_stats.stack_inuse_bytes)}</span></div>
-                    <div class="memory-item"><span>Total Alloc:</span><span>${formatBytes(data.memory_stats.total_alloc_bytes)}</span></div>
-                `;
-            }
-        }
-
-        async function fetchEndpoint(endpoint, elementId) {
-            const element = document.getElementById(elementId);
-            try {
-                const startTime = performance.now();
-                const response = await fetch(`${baseUrl}${endpoint}`);
-                const endTime = performance.now();
-                const latency = (endTime - startTime).toFixed(2);
-
-                if (endpoint === '/metrics') {
-                    const data = await response.json();
-                    updateMetricsDashboard(data);
-                    element.textContent = JSON.stringify(data, null, 2);
-                } else {
-                    const text = await response.text();
-                    element.textContent = `${text}\n\nLatency: ${latency} ms`;
-                }
-            } catch (error) {
-                element.textContent = `Error: ${error.message}`;
-            }
-        }
-
-        async function fetchAllEndpoints() {
-            await Promise.all([
-                fetchEndpoint('/health', 'health-response'),
-                fetchEndpoint('/metrics', 'metrics-response'),
-                fetchEndpoint('/db-status', 'db-status-response')
-            ]);
-        }
-
-        function openInBrowser() {
-            window.open(baseUrl, '_blank');
-        }
-
-        // Auto-refresh every 30 seconds
-        setInterval(fetchAllEndpoints, 30000);
-
-        // Initial load
-        window.onload = function() {
-            fetchAllEndpoints();
-        };
-    </script>
+    <script src="./readmeassets/script.js"></script>
 </body>
 </html>

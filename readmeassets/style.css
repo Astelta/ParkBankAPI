@@ -1,0 +1,254 @@
+ * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ACD2ED;
+            color: #14453D;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            background: #14453D;
+            color: #ACD2ED;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+        .metrics-section {
+            background: white;
+            border: 2px solid #3D7068;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .metrics-section h2 {
+            color: #14453D;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.4em;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .metric-card {
+            background: #ACD2ED;
+            border: 1px solid #3D7068;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .metric-card h4 {
+            color: #14453D;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #3D7068;
+        }
+        .status-chip {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .status-connected {
+            color: #0A210F;
+            background: #B9E5B8;
+        }
+        .status-error {
+            color: #fff;
+            background: #C34141;
+        }
+        .status-unknown {
+            color: #0A210F;
+            background: #FFD966;
+        }
+        .status-disconnected {
+            color: #fff;
+            background: #2E3A47;
+        }
+        .metric-details {
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #3D7068;
+        }
+        .metrics-summary {
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            color: #14453D;
+            text-align: center;
+            opacity: 0.9;
+        }
+        .memory-breakdown {
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+        .memory-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid #3D7068;
+        }
+        .memory-item:last-child {
+            border-bottom: none;
+        }
+        .endpoints-section {
+            background: white;
+            border: 2px solid #3D7068;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .endpoints-section h2 {
+            color: #14453D;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.4em;
+        }
+        .endpoints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .endpoint-card {
+            background: #ACD2ED;
+            border: 1px solid #3D7068;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .endpoint-card h3 {
+            color: #14453D;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .endpoint-card .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .method-get {
+            background: #3D7068;
+            color: #ACD2ED;
+        }
+        .method-post {
+            background: #14453D;
+            color: #ACD2ED;
+        }
+        .endpoint-card .url {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            color: #14453D;
+            font-weight: bold;
+            border: 1px solid #3D7068;
+        }
+        .endpoint-card p {
+            margin-bottom: 10px;
+            color: #14453D;
+            font-size: 0.9em;
+        }
+        .auth-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .auth-badge.public {
+            background: #B9E5B8;
+            color: #0A210F;
+        }
+        .auth-badge.auth {
+            background: #FFD966;
+            color: #14453D;
+        }
+        .payload-section {
+            margin: 10px 0;
+            font-size: 0.85em;
+            color: #14453D;
+        }
+        .payload-section pre {
+            background: white;
+            padding: 8px;
+            border-radius: 3px;
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border: 1px solid #3D7068;
+            overflow-x: auto;
+        }
+        .endpoint-card.auth-required {
+            border-left: 4px solid #FFD966;
+        }
+        .response-display {
+            background: #14453D;
+            color: #ACD2ED;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.8em;
+        }
+        .loading {
+            text-align: center;
+            color: #3D7068;
+        }
+        .buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #3D7068;
+            color: #ACD2ED;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 8px;
+            cursor: pointer;
+            font-weight: bold;
+            border: 1px solid #14453D;
+        }
+        .btn:hover {
+            background: #14453D;
+        }
+        .btn-secondary {
+            background: #ACD2ED;
+            color: #14453D;
+            border: 1px solid #3D7068;
+        }
+        .btn-secondary:hover {
+            background: #3D7068;
+            color: #ACD2ED;
+        }
