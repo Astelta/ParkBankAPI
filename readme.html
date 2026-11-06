@@ -13,71 +13,6 @@
             <p>API Monitoring Dashboard</p>
         </div>
 
-        <div class="metrics-section">
-            <h2>System Metrics</h2>
-            <p class="metrics-summary">Live API health, runtime telemetry, and memory details for monitoring performance.</p>
-            <div class="metrics-grid" id="metrics-dashboard">
-                <div class="metric-card">
-                    <h4>Server Uptime</h4>
-                    <div class="metric-value" id="uptime">--:--:--</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Service Status</h4>
-                    <div class="metric-value status-chip status-disconnected" id="service-status">Checking...</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Database Latency</h4>
-                    <div class="metric-value" id="db-latency">-- ms</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Health API Latency</h4>
-                    <div class="metric-value" id="health-latency">-- ms</div>
-                    <div class="metric-details">Round-trip time for /health</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>CPU Cores</h4>
-                    <div class="metric-value" id="cpu-count">--</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Goroutines</h4>
-                    <div class="metric-value" id="goroutines">--</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Max Procs</h4>
-                    <div class="metric-value" id="max-procs">--</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Memory Usage</h4>
-                    <div class="metric-value" id="memory-usage">--</div>
-                    <div class="memory-breakdown" id="memory-breakdown">
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Garbage Collections</h4>
-                    <div class="metric-value" id="gc-count">--</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Go Version</h4>
-                    <div class="metric-value" id="go-version">--</div>
-                </div>
-
-                <div class="metric-card">
-                    <h4>Last Updated</h4>
-                    <div class="metric-value" id="last-updated">--</div>
-                    <div class="metric-details">Most recent refresh time</div>
-                </div>
-            </div>
-        </div>
-
         <div class="endpoints-section">
             <h2>API Endpoints</h2>
             <div class="endpoints-grid">
@@ -184,6 +119,74 @@
                     <div class="response-display">Transfer successful</div>
                 </div>
             </div>
+        
+        </div>
+
+        <div class="metrics-section">
+            <h2>System Metrics</h2>
+            <p class="metrics-summary">Live API health, runtime telemetry, and memory details for monitoring performance.</p>
+            <div class="metrics-grid" id="metrics-dashboard">
+                <div class="metric-card">
+                    <h4>Server Uptime</h4>
+                    <div class="metric-value" id="uptime">--:--:--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Service Status</h4>
+                    <div class="metric-value status-chip status-disconnected" id="service-status">Checking...</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Database Latency</h4>
+                    <div class="metric-value" id="db-latency">-- ms</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Health API Latency</h4>
+                    <div class="metric-value" id="health-latency">-- ms</div>
+                    <div class="metric-details">Round-trip time for /health</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>CPU Cores</h4>
+                    <div class="metric-value" id="cpu-count">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Goroutines</h4>
+                    <div class="metric-value" id="goroutines">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Max Procs</h4>
+                    <div class="metric-value" id="max-procs">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Memory Usage</h4>
+                    <div class="metric-value" id="memory-usage">--</div>
+                    <div class="memory-breakdown" id="memory-breakdown">
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Garbage Collections</h4>
+                    <div class="metric-value" id="gc-count">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Go Version</h4>
+                    <div class="metric-value" id="go-version">--</div>
+                </div>
+
+                <div class="metric-card">
+                    <h4>Last Updated</h4>
+                    <div class="metric-value" id="last-updated">--</div>
+                    <div class="metric-details">Most recent refresh time</div>
+                </div>
+            </div>
+
+        
         </div>
     </div>
     <script src="./readmeassets/script.js"></script>

@@ -1,4 +1,4 @@
-# Astelta API v2
+# ParkBankApi
 
 A comprehensive Go-based REST API with advanced monitoring and metrics capabilities.
 
@@ -23,74 +23,7 @@ A comprehensive Go-based REST API with advanced monitoring and metrics capabilit
 
 ## API Endpoints
 
-### Health Check
-**GET** `/health`
-
-Basic health check endpoint for load balancers and monitoring systems.
-
-**Response:**
-```
-HTTP 200 OK
-Content-Type: text/plain
-
-ok
-```
-
-### Metrics
-**GET** `/metrics`
-
-Comprehensive metrics endpoint returning detailed JSON data about system performance.
-
-**Response:**
-```json
-{
-  "uptime": "2h30m45s",
-  "database_status": "connected",
-  "database_latency_ms": 12500000,
-  "go_version": "go1.25.3",
-  "memory_stats": {
-    "alloc_bytes": 1048576,
-    "total_alloc_bytes": 2097152,
-    "sys_bytes": 3145728,
-    "heap_alloc_bytes": 524288,
-    "heap_sys_bytes": 1048576,
-    "heap_idle_bytes": 262144,
-    "heap_inuse_bytes": 786432,
-    "heap_objects": 1234,
-    "stack_inuse_bytes": 65536,
-    "stack_sys_bytes": 131072,
-    "gc_sys_bytes": 16384,
-    "next_gc_bytes": 4194304,
-    "last_gc": "2026-04-23T16:43:43Z",
-    "num_gc": 5,
-    "lookups": 0,
-    "mallocs": 5678,
-    "frees": 4444
-  },
-  "timestamp": "2026-04-23T16:43:43Z"
-}
-```
-
-**Metrics Explained:**
-- `uptime`: Time since server started
-- `database_status`: Connection status ("connected", "disconnected", "error")
-- `database_latency_ms`: Database ping response time in nanoseconds
-- `go_version`: Go runtime version
-- `memory_stats`: Detailed memory usage statistics
-- `timestamp`: When metrics were collected
-
-### Database Status
-**GET** `/db-status`
-
-Database-specific status check that queries PostgreSQL version and connection health.
-
-**Response:**
-```
-HTTP 200 OK
-Content-Type: text/plain
-
-API działa. PostgreSQL version: PostgreSQL 15.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 11.3.1, 64-bit
-```
+All of the endpoints are described in detail (here)[https://astelta.github.io/ParkBankAPI/readme.html]
 
 ## Metrics Dashboard
 
@@ -238,9 +171,8 @@ Use these endpoints with monitoring tools like Prometheus, Grafana, or custom da
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GPL-3.0 License - see the LICENSE file for details.
 
 ---
 
-Built with Go and PostgreSQL</content>
-<parameter name="filePath">c:\Users\Aurie\Documents\GitHub\Astelta-apiV2\README.md
+Built with Go and PostgreSQL

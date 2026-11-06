@@ -34,11 +34,13 @@
             border: 2px solid #3D7068;
             border-radius: 8px;
             padding: 20px;
+            margin-top: 20px;
             margin-bottom: 20px;
         }
         .metrics-section h2 {
             color: #14453D;
             margin-bottom: 15px;
+            
             text-align: center;
             font-size: 1.4em;
         }
