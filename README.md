@@ -23,7 +23,7 @@ A comprehensive Go-based REST API with advanced monitoring and metrics capabilit
 
 ## API Endpoints
 
-All of the endpoints are described in detail [https://astelta.github.io/ParkBankAPI/readme.html](here)
+All of the endpoints are described in detail [here](https://astelta.github.io/ParkBankAPI/readme.html)
 
 ## Metrics Dashboard
 
