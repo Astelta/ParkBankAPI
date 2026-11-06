@@ -166,6 +166,23 @@
   "balance": 100.50
 }</div>
                 </div>
+                <div class="endpoint-card auth-required">
+                    <h3>Transfer Funds</h3>
+                    <span class="method method-post">POST</span>
+                    <div class="url">/transfer</div>
+                    <span class="auth-badge auth">Auth Required</span>
+                    <p>Transfers funds from the authenticated user's account to another user. Requires a valid JWE token and a JSON payload specifying the recipient and amount.</p>
+                    <div class="payload-section">
+                        <strong>Headers:</strong>
+                        <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
+                        <strong>Payload (JSON):</strong>
+                        <pre>{
+  "recipient_id": 2,
+  "amount": 50.00
+}</pre>
+                    </div>
+                    <div class="response-display">Transfer successful</div>
+                </div>
             </div>
         </div>
     </div>

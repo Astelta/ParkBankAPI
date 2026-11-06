@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 
 	"astelta-api-v2/internal/utils"
 )
@@ -11,7 +13,7 @@ func CorsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
@@ -23,28 +25,30 @@ func CorsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 // AuthMiddleware validates JWE tokens and rejects invalid requests
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Get token from Authorization header (Bearer token)
+		// Pobranie nagłówka
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "Authorization header required", http.StatusUnauthorized)
 			return
 		}
 
-		// Extract token from "Bearer <token>" format
-		token := authHeader
-		if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
-			token = authHeader[7:]
+		// Bezpieczne i czyste usunięcie prefiksu "Bearer "
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		if token == authHeader {
+			// Opcjonalnie: odrzucenie żądania, jeśli nagłówek nie zaczynał się od "Bearer "
+			http.Error(w, "Invalid authorization format", http.StatusUnauthorized)
+			return
 		}
 
-		// Validate the JWE token
+		// Walidacja tokena JWE
 		payload, err := utils.ValidateAuthToken(token)
 		if err != nil {
 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
 		}
 
-		// Store user info in request context for handlers to use
-		r.Header.Set("X-User-ID", string(rune(payload.UserID)))
+		// Prawidłowa konwersja int64 na string z bazą 10 (system dziesiętny)
+		r.Header.Set("X-User-ID", strconv.FormatInt(payload.UserID, 10))
 		r.Header.Set("X-Username", payload.Username)
 
 		next(w, r)

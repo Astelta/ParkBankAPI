@@ -103,7 +103,15 @@ func GetEncryptionKey() []byte {
 	panic(newError)
 }
 
-// EncryptJWE encrypts data using AES-GCM and returns a JWE token
+// TokenPayload represents the data stored in the JWE token
+type TokenPayload struct {
+	UserID     int64  `json:"user_id"`
+	Username   string `json:"username"`
+	Token      string `json:"token"`
+	Expiration int64  `json:"expiration"`
+}
+
+// EncryptJWE encrypts data using AES-GCM and returns a compact token string
 func EncryptJWE(data interface{}) (string, error) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -126,26 +134,37 @@ func EncryptJWE(data interface{}) (string, error) {
 		return "", err
 	}
 
-	ciphertext := gcm.Seal(nonce, nonce, jsonData, nil)
+	// gcm.Seal szyfruje dane i dokleja tag autoryzacyjny.
+	// Przekazujemy nil jako pierwszy argument, aby nie nadpisywać nonce'a.
+	ciphertext := gcm.Seal(nil, nonce, jsonData, nil)
 
-	jwe := JWE{
-		Alg: "AES-GCM",
-		Enc: "A256GCM",
-		IV:  base64.StdEncoding.EncodeToString(nonce),
-		CT:  base64.StdEncoding.EncodeToString(ciphertext[gcm.NonceSize():]),
-	}
+	// Tworzymy trzy segmenty zakodowane w URL-safe Base64
+	header := `{"alg":"AES-GCM","enc":"A256GCM"}`
+	b64Header := base64.RawURLEncoding.EncodeToString([]byte(header))
+	b64IV := base64.RawURLEncoding.EncodeToString(nonce)
+	b64CT := base64.RawURLEncoding.EncodeToString(ciphertext)
 
-	jweBytes, err := json.Marshal(jwe)
-	if err != nil {
-		return "", err
-	}
-	return string(jweBytes), nil
+	// Łączymy w kompaktowy token
+	return b64Header + "." + b64IV + "." + b64CT, nil
 }
 
-// DecryptJWE decrypts a JWE token and unmarshals the data
+// DecryptJWE decrypts a compact token string and unmarshals the data
 func DecryptJWE(token string, dest interface{}) error {
-	var jwe JWE
-	if err := json.Unmarshal([]byte(token), &jwe); err != nil {
+	// Rozbijamy token po kropkach
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return errors.New("invalid token format")
+	}
+
+	// Dekodujemy IV (wektor inicjalizujący)
+	nonce, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return err
+	}
+
+	// Dekodujemy szyfrogram
+	ciphertext, err := base64.RawURLEncoding.DecodeString(parts[2])
+	if err != nil {
 		return err
 	}
 
@@ -160,30 +179,13 @@ func DecryptJWE(token string, dest interface{}) error {
 		return err
 	}
 
-	nonce, err := base64.StdEncoding.DecodeString(jwe.IV)
-	if err != nil {
-		return err
-	}
-
-	ciphertext, err := base64.StdEncoding.DecodeString(jwe.CT)
-	if err != nil {
-		return err
-	}
-
+	// Odszyfrowujemy z weryfikacją tagu autoryzacyjnego
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return err
 	}
 
 	return json.Unmarshal(plaintext, dest)
-}
-
-// TokenPayload represents the data stored in the JWE token
-type TokenPayload struct {
-	UserID     int64  `json:"user_id"`
-	Username   string `json:"username"`
-	Token      string `json:"token"`
-	Expiration int64  `json:"expiration"`
 }
 
 // CreateAuthToken creates a JWE token for authenticated users

@@ -111,6 +111,9 @@ func main() {
 	http.HandleFunc("/profile", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.ProfileHandler(w, r, db)
 	})))
+	http.HandleFunc("/transfer", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.TransferHandler(w, r, db)
+	})))
 
 	// Start the server
 	port := ":8097"
