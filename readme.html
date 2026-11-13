@@ -7,16 +7,33 @@
     <link rel="stylesheet" href="./readmeassets/style.css">
 </head>
 <body>
+    <div class="sidebar">
+        <h2><a href="./">Navigation</a></h2>
+        <ul>
+            <li><a href="#endpoints-section">API Endpoints</a></li>
+                <ul>
+                    <li><a href="#health-check">Health Check</a></li>
+                    <li><a href="#metrics">Metrics</a></li>
+                    <li><a href="#user-registration">User Registration</a></li>
+                    <li><a href="#user-login">User Login</a></li>
+                    <li><a href="#user-profile">User Profile</a></li>
+                    <li><a href="#transfer-funds">Transfer Funds</a></li>
+                    <li><a href="#user-logout">User Logout</a></li>
+                </ul>
+            <li><a href="#metrics-section">System Metrics</a></li>
+        </ul>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Park Bank API 0.1</h1>
             <p>API Monitoring Dashboard</p>
         </div>
 
-        <div class="endpoints-section">
+        <div class="endpoints-section" id="endpoints-section">
             <h2>API Endpoints</h2>
             <div class="endpoints-grid">
-                <div class="endpoint-card">
+                <div class="endpoint-card" id="health-check">
                     <h3>Health Check</h3>
                     <span class="method method-get">GET</span>
                     <div class="url">/health</div>
@@ -28,7 +45,7 @@
                     <div class="response-display">ok</div>
                 </div>
 
-                <div class="endpoint-card">
+                <div class="endpoint-card" id="metrics">
                     <h3>Metrics</h3>
                     <span class="method method-get">GET</span>
                     <div class="url">/metrics</div>
@@ -52,7 +69,7 @@
 }</div>
                 </div>
 
-                <div class="endpoint-card">
+                <div class="endpoint-card" id="user-registration">
                     <h3>User Registration</h3>
                     <span class="method method-post">POST</span>
                     <div class="url">/register</div>
@@ -68,7 +85,7 @@
                     <div class="response-display">User registered successfully</div>
                 </div>
 
-                <div class="endpoint-card">
+                <div class="endpoint-card" id="user-login">
                     <h3>User Login</h3>
                     <span class="method method-post">POST</span>
                     <div class="url">/login</div>
@@ -86,7 +103,7 @@
 }</div>
                 </div>
 
-                <div class="endpoint-card auth-required">
+                <div class="endpoint-card auth-required" id="user-profile">
                     <h3>User Profile</h3>
                     <span class="method method-get">GET</span>
                     <div class="url">/profile</div>
@@ -101,7 +118,7 @@
   "balance": 100.50
 }</div>
                 </div>
-                <div class="endpoint-card auth-required">
+                <div class="endpoint-card auth-required" id="transfer-funds">
                     <h3>Transfer Funds</h3>
                     <span class="method method-post">POST</span>
                     <div class="url">/transfer</div>
@@ -118,11 +135,26 @@
                     </div>
                     <div class="response-display">Transfer successful</div>
                 </div>
+                <div class="endpoint-card auth-required" id="user-logout">
+                <h3>User Logout</h3>
+                <span class="method method-post">POST</span>
+                <div class="url">/logout</div>
+                <span class="auth-badge auth">Auth Required</span>
+                <p>Logs out the authenticated user by invalidating their JWE token. Requires a valid token in the Authorization header.</p>
+                <div class="payload-section">
+                    <strong>Headers:</strong>
+                    <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
+                </div>
+                <div class="response-display">Logout successful</div>
+
+            </div>
             </div>
         
+            
+
         </div>
 
-        <div class="metrics-section">
+        <div class="metrics-section" id="metrics-section">
             <h2>System Metrics</h2>
             <p class="metrics-summary">Live API health, runtime telemetry, and memory details for monitoring performance.</p>
             <div class="metrics-grid" id="metrics-dashboard">
