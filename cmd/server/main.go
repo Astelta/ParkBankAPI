@@ -10,6 +10,7 @@ import (
 	"time"
 
 	//my packages
+	"astelta-api-v2/internal/cronjobs"
 	"astelta-api-v2/internal/handlers"
 	"astelta-api-v2/internal/metrics"
 	"astelta-api-v2/internal/middleware"
@@ -118,6 +119,9 @@ func main() {
 		handlers.LogoutHandler(w, r, db)
 	})))
 
+	//start the cron jobs
+	cronjobs.StartAllCronJobs(db)
+
 	// Start the server
 	port := ":8097"
 	fmt.Printf("Starting API server on port %s...\n", port)
@@ -125,4 +129,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error http: %v", err)
 	}
+
 }
