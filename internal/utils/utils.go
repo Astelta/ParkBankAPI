@@ -6,6 +6,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -35,6 +36,9 @@ func LoadDotEnv(path string) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+	if err := scanner.Err(); err != nil {
+		return
+	}
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
@@ -206,6 +210,7 @@ func CreateAuthToken(userID int64, username string) (string, error) {
 // ValidateAuthToken validates a JWE token and returns the payload
 func ValidateAuthToken(token string) (*TokenPayload, error) {
 	var payload TokenPayload
+
 	err := DecryptJWE(token, &payload)
 	if err != nil {
 		return nil, err
@@ -216,4 +221,22 @@ func ValidateAuthToken(token string) (*TokenPayload, error) {
 	}
 
 	return &payload, nil
+}
+
+func IsTokenBlacklisted(token string) (bool, error) {
+	// Connect to the database
+	db, err := sql.Open("postgres", GetEnv("DATABASE_URL", ""))
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	// Query the database to check if the token is blacklisted
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM tokens WHERE token = $1)", token).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }

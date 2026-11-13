@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -83,15 +84,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	jweToken, err := utils.CreateAuthToken(userID, requestData.Username)
 	if err != nil {
 		http.Error(w, "Error creating token", http.StatusInternalServerError)
-		return
-	}
-
-	//timestamp(6) in db
-	timestamp := time.Now().Add(24 * time.Hour)
-	//save the token in the database columns token, user_id, expiration
-	_, err = db.Exec("INSERT INTO tokens (token, user_id,  expiration) VALUES ($1, $2, $3)", jweToken, userID, timestamp)
-	if err != nil {
-		http.Error(w, "Error saving token", http.StatusInternalServerError)
 		return
 	}
 
@@ -243,4 +235,32 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Transfer successful"))
+}
+
+func LogoutHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get user ID from headers (set by AuthMiddleware)
+	userID := r.Header.Get("X-User-ID")
+	if userID == "" {
+		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		return
+	}
+
+	// Add the token to the blacklist in the database
+	authHeader := r.Header.Get("Authorization")
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	//get the expiration time of the token
+	expiration := time.Now().Add(24 * time.Hour) // Assuming the token is valid for 24 hours
+	_, err := db.Exec("INSERT INTO tokens (token, user_id, expiration) VALUES ($1, $2, $3)", token, userID, expiration)
+	if err != nil {
+		http.Error(w, "Error blacklisting token", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Logout successful"))
 }

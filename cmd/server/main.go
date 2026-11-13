@@ -10,6 +10,7 @@ import (
 	"time"
 
 	//my packages
+	"astelta-api-v2/internal/cronjobs"
 	"astelta-api-v2/internal/handlers"
 	"astelta-api-v2/internal/metrics"
 	"astelta-api-v2/internal/middleware"
@@ -114,6 +115,12 @@ func main() {
 	http.HandleFunc("/transfer", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.TransferHandler(w, r, db)
 	})))
+	http.HandleFunc("/logout", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.LogoutHandler(w, r, db)
+	})))
+
+	//start the cron jobs
+	cronjobs.StartAllCronJobs(db)
 
 	// Start the server
 	port := ":8097"
@@ -122,4 +129,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error http: %v", err)
 	}
+
 }

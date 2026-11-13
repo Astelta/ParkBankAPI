@@ -2,6 +2,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            text-decoration: none;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -9,10 +10,43 @@
             color: #14453D;
             line-height: 1.5;
         }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 100%;
+            background: #3D7068;
+            color: #ACD2ED;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .sidebar a {
+            color: #ACD2ED;
+            text-decoration: none;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        .sidebar ul li a {
+            color: #ACD2ED;
+        }
+        .sidebar ul li a:hover {
+            text-decoration: underline;
+        }
         .container {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            margin-left: 300px; /* Adjusted for sidebar width */
         }
         .header {
             text-align: center;
