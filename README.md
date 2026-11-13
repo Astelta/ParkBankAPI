@@ -1,4 +1,4 @@
-# ParkBankApi
+# ParkBankApi [![CodeFactor](https://www.codefactor.io/repository/github/astelta/parkbankapi/badge/main)](https://www.codefactor.io/repository/github/astelta/parkbankapi/overview/main) [![License](https://img.shields.io/github/license/Astelta/ParkBankAPI)](https://github.com/Astelta/ParkBankAPI/blob/main/LICENSE)
 
 A comprehensive Go-based REST API with advanced monitoring and metrics capabilities.
 
