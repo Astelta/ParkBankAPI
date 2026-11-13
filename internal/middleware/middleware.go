@@ -40,6 +40,17 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		// Check if the token is blacklisted
+		isBlacklisted, err := utils.IsTokenBlacklisted(token)
+		if err != nil {
+			http.Error(w, "Error occurred while checking token status", http.StatusUnauthorized)
+			return
+		}
+		if isBlacklisted {
+			http.Error(w, "Token is blacklisted", http.StatusUnauthorized)
+			return
+		}
+
 		// Walidacja tokena JWE
 		payload, err := utils.ValidateAuthToken(token)
 		if err != nil {

@@ -114,6 +114,9 @@ func main() {
 	http.HandleFunc("/transfer", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.TransferHandler(w, r, db)
 	})))
+	http.HandleFunc("/logout", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.LogoutHandler(w, r, db)
+	})))
 
 	// Start the server
 	port := ":8097"
