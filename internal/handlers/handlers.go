@@ -271,21 +271,28 @@ func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	// Get requested user ID from query parameters
+	// Check if the request containst an id or a nickname in the query parameters
 	requestedUserID := r.URL.Query().Get("id")
-	if requestedUserID == "" {
-		http.Error(w, "User ID is required", http.StatusBadRequest)
+	requestedUsername := r.URL.Query().Get("nickname")
+
+	// Get requested user ID from query parameters
+	if requestedUserID == "" && requestedUsername == "" {
+		http.Error(w, "User ID or username is required", http.StatusBadRequest)
 		return
 	}
 
 	var user struct {
-		ID       int64   `json:"id"`
-		Username string  `json:"username"`
-		Balance  float64 `json:"balance"`
+		ID       int64  `json:"id"`
+		Username string `json:"username"`
 	}
 
 	// lookup requested user data from the database
-	err := db.QueryRow("SELECT id, login, balance FROM users WHERE id = $1", requestedUserID).Scan(&user.ID, &user.Username, &user.Balance)
+	var err error
+	if requestedUserID != "" {
+		err = db.QueryRow("SELECT id, login FROM users WHERE id = $1", requestedUserID).Scan(&user.ID, &user.Username)
+	} else {
+		err = db.QueryRow("SELECT id, login FROM users WHERE login = $1", requestedUsername).Scan(&user.ID, &user.Username)
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "User not found", http.StatusNotFound)
