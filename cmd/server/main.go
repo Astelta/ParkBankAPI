@@ -118,6 +118,9 @@ func main() {
 	http.HandleFunc("/logout", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.LogoutHandler(w, r, db)
 	})))
+	http.HandleFunc("/user", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.UserHandler(w, r, db)
+	})))
 
 	//start the cron jobs
 	cronjobs.StartAllCronJobs(db)

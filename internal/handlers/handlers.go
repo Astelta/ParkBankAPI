@@ -264,3 +264,37 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Logout successful"))
 }
+
+func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get requested user ID from query parameters
+	requestedUserID := r.URL.Query().Get("id")
+	if requestedUserID == "" {
+		http.Error(w, "User ID is required", http.StatusBadRequest)
+		return
+	}
+
+	var user struct {
+		ID       int64   `json:"id"`
+		Username string  `json:"username"`
+		Balance  float64 `json:"balance"`
+	}
+
+	// lookup requested user data from the database
+	err := db.QueryRow("SELECT id, login, balance FROM users WHERE id = $1", requestedUserID).Scan(&user.ID, &user.Username, &user.Balance)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Error querying user", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
