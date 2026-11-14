@@ -264,3 +264,44 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Logout successful"))
 }
+
+func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Check if the request containst an id or a nickname in the query parameters
+	requestedUserID := r.URL.Query().Get("id")
+	requestedNickname := r.URL.Query().Get("nickname")
+
+	// Get requested user ID from query parameters
+	if requestedUserID == "" && requestedNickname == "" {
+		http.Error(w, "User ID or nickname is required", http.StatusBadRequest)
+		return
+	}
+
+	var user struct {
+		ID       int64  `json:"id"`
+		Nickname string `json:"nickname"`
+	}
+
+	// lookup requested user data from the database
+	var err error
+	if requestedUserID != "" {
+		err = db.QueryRow("SELECT id, login FROM users WHERE id = $1", requestedUserID).Scan(&user.ID, &user.Nickname)
+	} else {
+		err = db.QueryRow("SELECT id, login FROM users WHERE login = $1", requestedNickname).Scan(&user.ID, &user.Nickname)
+	}
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Error querying user", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
