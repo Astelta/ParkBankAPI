@@ -305,3 +305,58 @@ func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
+
+func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	//get the limit and offset from the query parameters
+	limit := r.URL.Query().Get("limit")
+	offset := r.URL.Query().Get("offset")
+
+	// Get user ID from headers (set by AuthMiddleware)
+	userID := r.Header.Get("X-User-ID")
+	if userID == "" {
+		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		return
+	}
+
+	// Query transactions for the user
+	rows, err := db.Query("SELECT id, sender_id, recipient_id, amount, created_at FROM transactions WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3", userID, limit, offset)
+	if err != nil {
+		http.Error(w, "Error querying transactions", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var transactions []struct {
+		ID          int64     `json:"id"`
+		SenderID    int64     `json:"sender_id"`
+		RecipientID int64     `json:"recipient_id"`
+		Amount      float64   `json:"amount"`
+		CreatedAt   time.Time `json:"created_at"`
+	}
+	for rows.Next() {
+		var t struct {
+			ID          int64     `json:"id"`
+			SenderID    int64     `json:"sender_id"`
+			RecipientID int64     `json:"recipient_id"`
+			Amount      float64   `json:"amount"`
+			CreatedAt   time.Time `json:"created_at"`
+		}
+		if err := rows.Scan(&t.ID, &t.SenderID, &t.RecipientID, &t.Amount, &t.CreatedAt); err != nil {
+			http.Error(w, "Error scanning transaction", http.StatusInternalServerError)
+			return
+		}
+		if rows.Err() != nil {
+			http.Error(w, "Error iterating over transactions", http.StatusInternalServerError)
+			return
+		}
+		transactions = append(transactions, t)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(transactions)
+}
