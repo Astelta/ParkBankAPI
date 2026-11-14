@@ -273,25 +273,25 @@ func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	// Check if the request containst an id or a nickname in the query parameters
 	requestedUserID := r.URL.Query().Get("id")
-	requestedUsername := r.URL.Query().Get("nickname")
+	requestedNickname := r.URL.Query().Get("nickname")
 
 	// Get requested user ID from query parameters
-	if requestedUserID == "" && requestedUsername == "" {
-		http.Error(w, "User ID or username is required", http.StatusBadRequest)
+	if requestedUserID == "" && requestedNickname == "" {
+		http.Error(w, "User ID or nickname is required", http.StatusBadRequest)
 		return
 	}
 
 	var user struct {
 		ID       int64  `json:"id"`
-		Username string `json:"username"`
+		Nickname string `json:"nickname"`
 	}
 
 	// lookup requested user data from the database
 	var err error
 	if requestedUserID != "" {
-		err = db.QueryRow("SELECT id, login FROM users WHERE id = $1", requestedUserID).Scan(&user.ID, &user.Username)
+		err = db.QueryRow("SELECT id, login FROM users WHERE id = $1", requestedUserID).Scan(&user.ID, &user.Nickname)
 	} else {
-		err = db.QueryRow("SELECT id, login FROM users WHERE login = $1", requestedUsername).Scan(&user.ID, &user.Username)
+		err = db.QueryRow("SELECT id, login FROM users WHERE login = $1", requestedNickname).Scan(&user.ID, &user.Nickname)
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -19,6 +19,7 @@
                     <li><a href="#user-profile">User Profile</a></li>
                     <li><a href="#transfer-funds">Transfer Funds</a></li>
                     <li><a href="#user-logout">User Logout</a></li>
+                    <li><a href="#user-info">User Info</a></li>
                 </ul>
             <li><a href="#metrics-section">System Metrics</a></li>
         </ul>
@@ -55,17 +56,17 @@
                         <strong>Payload:</strong> None
                     </div>
                     <div class="response-display">{
-  "uptime": "1h23m45s",
-  "db_latency_ms": 12,
-  "health_latency_ms": 0.5,
-  "cpu_count": 8,
-  "goroutines": 15,
-  "max_procs": 8,
-  "memory_alloc_mb": 45.2,
-  "memory_total_mb": 120.5,
-  "memory_sys_mb": 55.8,
-  "gc_count": 3,
-  "go_version": "go1.25.3"
+    "uptime": "1h23m45s",
+    "db_latency_ms": 12,
+    "health_latency_ms": 0.5,
+    "cpu_count": 8,
+    "goroutines": 15,
+    "max_procs": 8,
+    "memory_alloc_mb": 45.2,
+    "memory_total_mb": 120.5,
+    "memory_sys_mb": 55.8,
+    "gc_count": 3,
+    "go_version": "go1.25.3"
 }</div>
                 </div>
 
@@ -74,12 +75,12 @@
                     <span class="method method-post">POST</span>
                     <div class="url">/register</div>
                     <span class="auth-badge public">Public</span>
-                    <p>User registration endpoint that creates a new user account. Requires JSON payload with username and password fields. Passwords are securely hashed before storage.</p>
+                    <p>User registration endpoint that creates a new user account. Requires JSON payload with nickname and password fields. Passwords are securely hashed before storage.</p>
                     <div class="payload-section">
                         <strong>Payload (JSON):</strong>
                         <pre>{
-  "username": "example_user",
-  "password": "secure_password123"
+    "nickname": "example_user",
+    "password": "secure_password123"
 }</pre>
                     </div>
                     <div class="response-display">User registered successfully</div>
@@ -94,12 +95,12 @@
                     <div class="payload-section">
                         <strong>Payload (JSON):</strong>
                         <pre>{
-  "username": "example_user",
-  "password": "secure_password123"
+    "nickname": "example_user",
+    "password": "secure_password123"
 }</pre>
                     </div>
                     <div class="response-display">{
-  "token": "eyJhbGciOiJBRVNFTC1HQ00iLCJlbmMiOiJBMjU2R0NNIiwidmYiOiJBUkQxMjM0NTY3ODkwIiwiY3QiOiJBMTIzNDU2Nzg5MCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImV4YW1wbGVfdXNlciIsInRva2VuIjoiZXhhbXBsZV90b2tlbl8xMjM0NTY3ODkiLCJleHBpcmF0aW9uIjoxNzA0OTY3NjAwfQ.abc123def456..."
+    "token": "eyJhbGciOiJBRVNFTC1HQ00iLCJlbmMiOiJBMjU2R0NNIiwidmYiOiJBUkQxMjM0NTY3ODkwIiwiY3QiOiJBMTIzNDU2Nzg5MCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImV4YW1wbGVfdXNlciIsInRva2VuIjoiZXhhbXBsZV90b2tlbl8xMjM0NTY3ODkiLCJleHBpcmF0aW9uIjoxNzA0OTY3NjAwfQ.abc123def456..."
 }</div>
                 </div>
 
@@ -114,8 +115,8 @@
                         <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
                     </div>
                     <div class="response-display">{
-  "id": 1,
-  "balance": 100.50
+    "id": 1,
+    "balance": 100.50
 }</div>
                 </div>
                 <div class="endpoint-card auth-required" id="transfer-funds">
@@ -129,8 +130,8 @@
                         <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
                         <strong>Payload (JSON):</strong>
                         <pre>{
-  "recipient_id": 2,
-  "amount": 50.00
+    "recipient_id": 2,
+    "amount": 50.00
 }</pre>
                     </div>
                     <div class="response-display">Transfer successful</div>
@@ -148,6 +149,27 @@
                 <div class="response-display">Logout successful</div>
 
             </div>
+
+            <div class="endpoint-card auth-required" id="user-info">
+                <h3>User Info</h3>
+                <span class="method method-get">GET</span>
+                <div class="url">/user</div>
+                <span class="auth-badge auth">Auth Required</span>
+                <p>Returns the authenticated user's information including user ID, nickname. Requires a valid JWE token in the Authorization header. <strong>*The id is always checked first even if nickname is provided*</strong></p>
+                <div class="payload-section">
+                    <strong>Headers:</strong>
+                    <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
+                    <strong>Payload /GET:</strong> <pre>
+    parkbankapi.com/user?id=1</pre>
+                    or
+                    <pre>
+    parkbankapi.com/user?nickname=john_doe
+</pre>
+                </div>
+                <div class="response-display">{
+    "id": 1,
+    "nickname": "john_doe"
+}</div>
             </div>
         
             
