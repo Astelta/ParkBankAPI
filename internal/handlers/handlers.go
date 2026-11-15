@@ -227,6 +227,14 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w, "Error updating recipient balance", http.StatusInternalServerError)
 		return
 	}
+
+	//Save the transaction in the transactions table
+	_, err = tx.Exec("INSERT INTO transactions (sender_id, recipient_id, amount) VALUES ($1, $2, $3)", userID, requestData.RecipientID, requestData.Amount)
+	if err != nil {
+		tx.Rollback()
+		http.Error(w, "Error saving transaction", http.StatusInternalServerError)
+		return
+	}
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
