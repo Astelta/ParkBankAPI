@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -322,7 +323,19 @@ func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	//get the limit and offset from the query parameters
 	limit := r.URL.Query().Get("limit")
+	//default limit to 10 if not provided
+	if limit == "" {
+		limit = "10"
+	}
+	// hard limit to 50 to prevent abuse
+	if limitInt, err := strconv.Atoi(limit); err == nil && limitInt > 50 {
+		limit = "50"
+	}
 	offset := r.URL.Query().Get("offset")
+	//default offset to 0 if not provided
+	if offset == "" {
+		offset = "0"
+	}
 
 	// Get user ID from headers (set by AuthMiddleware)
 	userID := r.Header.Get("X-User-ID")
@@ -363,6 +376,11 @@ func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			return
 		}
 		transactions = append(transactions, t)
+	}
+	//check if null transactions and return 404
+	if len(transactions) == 0 {
+		http.Error(w, "No transactions found", http.StatusNotFound)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
