@@ -20,6 +20,7 @@
                     <li><a href="#transfer-funds">Transfer Funds</a></li>
                     <li><a href="#user-logout">User Logout</a></li>
                     <li><a href="#user-info">User Info</a></li>
+                    <li><a href="#transactions">Transactions</a></li>
                 </ul>
             <li><a href="#metrics-section">System Metrics</a></li>
         </ul>
@@ -171,7 +172,37 @@
     "nickname": "john_doe"
 }</div>
             </div>
-        
+       <div class="endpoint-card auth-required" id="transactions">
+                <h3>Transactions</h3>
+                <span class="method method-get">GET</span>
+                <div class="url">/transactions</div>
+                <span class="auth-badge auth">Auth Required</span>
+                <p>Returns the authenticated user's transaction history. Requires a valid JWE token in the Authorization header. The endpoint supports pagination with optional limit and offset parameters. Also the limit has a hardcoded maximum value of 50. If no records are found, an 404 error is returned.</p>
+                <div class="payload-section">
+                    <strong>Headers:</strong>
+                    <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
+                    <strong>Payload /GET:</strong> <pre>
+    parkbankapi.com/transactions?limit=10&offset=0</pre>
+                </div>
+                <div class="response-display">[
+  {
+    "id": 36,
+    "sender_id": 10,
+    "recipient_id": 5,
+    "amount": 1983819,
+    "created_at": "2026-11-15T04:58:20.100656Z"
+  },
+  {
+    "id": 37,
+    "sender_id": 5,
+    "recipient_id": 10,
+    "amount": 1983819,
+    "created_at": "2026-11-15T04:58:20.100656Z"
+  },etc...
+]
+        </div>
+    </div>
+</div>
             
 
         </div>
