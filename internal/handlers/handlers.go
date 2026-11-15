@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -227,6 +228,14 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w, "Error updating recipient balance", http.StatusInternalServerError)
 		return
 	}
+
+	//Save the transaction in the transactions table
+	_, err = tx.Exec("INSERT INTO transactions (sender_id, recipient_id, amount) VALUES ($1, $2, $3)", userID, requestData.RecipientID, requestData.Amount)
+	if err != nil {
+		tx.Rollback()
+		http.Error(w, "Error saving transaction", http.StatusInternalServerError)
+		return
+	}
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
@@ -304,4 +313,76 @@ func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
+}
+
+func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	//get the limit and offset from the query parameters
+	limit := r.URL.Query().Get("limit")
+	//default limit to 10 if not provided
+	if limit == "" {
+		limit = "10"
+	}
+	// hard limit to 50 to prevent abuse
+	if limitInt, err := strconv.Atoi(limit); err == nil && limitInt > 50 {
+		limit = "50"
+	}
+	offset := r.URL.Query().Get("offset")
+	//default offset to 0 if not provided
+	if offset == "" {
+		offset = "0"
+	}
+
+	// Get user ID from headers (set by AuthMiddleware)
+	userID := r.Header.Get("X-User-ID")
+	if userID == "" {
+		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		return
+	}
+
+	// Query transactions for the user
+	rows, err := db.Query("SELECT id, sender_id, recipient_id, amount, created_at FROM transactions WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3", userID, limit, offset)
+	if err != nil {
+		http.Error(w, "Error querying transactions", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var transactions []struct {
+		ID          int64     `json:"id"`
+		SenderID    int64     `json:"sender_id"`
+		RecipientID int64     `json:"recipient_id"`
+		Amount      float64   `json:"amount"`
+		CreatedAt   time.Time `json:"created_at"`
+	}
+	for rows.Next() {
+		var t struct {
+			ID          int64     `json:"id"`
+			SenderID    int64     `json:"sender_id"`
+			RecipientID int64     `json:"recipient_id"`
+			Amount      float64   `json:"amount"`
+			CreatedAt   time.Time `json:"created_at"`
+		}
+		if err := rows.Scan(&t.ID, &t.SenderID, &t.RecipientID, &t.Amount, &t.CreatedAt); err != nil {
+			http.Error(w, "Error scanning transaction", http.StatusInternalServerError)
+			return
+		}
+		if rows.Err() != nil {
+			http.Error(w, "Error iterating over transactions", http.StatusInternalServerError)
+			return
+		}
+		transactions = append(transactions, t)
+	}
+	//check if null transactions and return 404
+	if len(transactions) == 0 {
+		http.Error(w, "No transactions found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(transactions)
 }

@@ -121,6 +121,9 @@ func main() {
 	http.HandleFunc("/user", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.UserHandler(w, r, db)
 	})))
+	http.HandleFunc("/transactions", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.TransactionsHandler(w, r, db)
+	})))
 
 	//start the cron jobs
 	cronjobs.StartAllCronJobs(db)
