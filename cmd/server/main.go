@@ -101,8 +101,12 @@ func main() {
 	}()
 
 	//endpoints
-	http.HandleFunc("/health", middleware.CorsMiddleware(handlers.HealthHandler))
-	http.HandleFunc("/metrics", middleware.CorsMiddleware(handlers.MetricsHandler))
+	http.HandleFunc("/health", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.HealthHandler(w, r)
+	}))
+	http.HandleFunc("/metrics", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handlers.MetricsHandler(w, r, db)
+	}))
 	http.HandleFunc("/register", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.RegisterHandler(w, r, db)
 	}))

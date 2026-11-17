@@ -25,6 +25,7 @@
         }
 
         function updateMetricsDashboard(data) {
+            data = data.data || data; // Handle the case where data is nested under a "Data" key
             document.getElementById('uptime').textContent = data.uptime || 'N/A';
             document.getElementById('service-status').textContent = data.database_status || 'Unknown';
             const statusElement = document.getElementById('service-status');
@@ -69,22 +70,22 @@
                     updateMetricsDashboard(data);
                     element.textContent = JSON.stringify(data, null, 2);
                 } else {
-                    const text = await response.text();
+                    const text = await response.json();
                     const endTime = performance.now();
                     const latency = (endTime - startTime).toFixed(2);
-                    element.textContent = `${text}\n\nLatency: ${latency} ms`;
+                    element.textContent = `${text.Message}\n\nLatency: ${latency} ms`;
                     if (endpoint === '/health') {
                         document.getElementById('health-latency').textContent = formatDuration(parseFloat(latency));
                     }
                 }
             } catch (error) {
-                element.innerHTML = `Error: ${error.message}`;
+                element.innerHTML = `Error: ${error.Message}`;
             }
         }
 
         async function fetchAllEndpoints() {
             await Promise.all([
-                fetchEndpoint('/health', 'health-response'),
+                fetchEndpoint('/health', 'health-latency'),
                 fetchEndpoint('/metrics', 'metrics-response')
             ]);
         }

@@ -258,7 +258,9 @@ type successResponse struct {
 
 func ReturnErrorResponse(w http.ResponseWriter, statusCode int, errCode string, message string) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
+	if statusCode != http.StatusOK {
+		w.WriteHeader(statusCode)
+	}
 	_ = json.NewEncoder(w).Encode(errorResponse{
 		Error: errorDetail{
 			Code:    errCode,
@@ -269,7 +271,9 @@ func ReturnErrorResponse(w http.ResponseWriter, statusCode int, errCode string, 
 
 func ReturnSuccessResponse(w http.ResponseWriter, statusCode int, message string, data any) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
+	if statusCode != http.StatusOK {
+		w.WriteHeader(statusCode)
+	}
 	_ = json.NewEncoder(w).Encode(successResponse{
 		Message: message,
 		Data:    data,

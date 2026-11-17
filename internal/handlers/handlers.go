@@ -107,18 +107,13 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // MetricsHandler returns system and application metrics in JSON format
-func MetricsHandler(w http.ResponseWriter, r *http.Request) {
+func MetricsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
 		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Method not allowed")
 		return
 	}
 
 	response := metrics.GetMetrics()
-
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error encoding metrics response")
-		return
-	}
 	utils.ReturnSuccessResponse(w, http.StatusOK, "Metrics retrieved successfully", response)
 }
 
