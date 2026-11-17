@@ -18,7 +18,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	var requestData struct {
-		Username string `json:"username"`
+		Nickname string `json:"nickname"`
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
@@ -26,20 +26,20 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	if requestData.Username == "" || requestData.Password == "" {
-		utils.ReturnErrorResponse(w, http.StatusBadRequest, "BAD_REQUEST", "Username and password are required")
+	if requestData.Nickname == "" || requestData.Password == "" {
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "BAD_REQUEST", "nickname and password are required")
 		return
 	}
 	requestData.Password = utils.HashPassword(requestData.Password)
 
-	_, err := db.Query("INSERT INTO users (login, password) VALUES ($1, $2)", requestData.Username, requestData.Password)
+	_, err := db.Query("INSERT INTO users (login, password) VALUES ($1, $2)", requestData.Nickname, requestData.Password)
 	if err != nil {
 		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error inserting user")
 		return
 	}
 
 	utils.ReturnSuccessResponse(w, http.StatusCreated, "User registered successfully", map[string]string{
-		"username": requestData.Username,
+		"nickname": requestData.Nickname,
 	})
 }
 
@@ -50,7 +50,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	var requestData struct {
-		Username string `json:"username"`
+		Nickname string `json:"nickname"`
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
@@ -58,18 +58,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	if requestData.Username == "" || requestData.Password == "" {
-		utils.ReturnErrorResponse(w, http.StatusBadRequest, "BAD_REQUEST", "Username and password are required")
+	if requestData.Nickname == "" || requestData.Password == "" {
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "BAD_REQUEST", "nickname and password are required")
 		return
 	}
 
-	// Query user by username
+	// Query user by nickname
 	var userID int64
 	var storedPassword string
-	err := db.QueryRow("SELECT id, password FROM users WHERE login = $1", requestData.Username).Scan(&userID, &storedPassword)
+	err := db.QueryRow("SELECT id, password FROM users WHERE login = $1", requestData.Nickname).Scan(&userID, &storedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "INVALID_CREDENTIALS", "Invalid username or password")
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "INVALID_CREDENTIALS", "Invalid nickname or password")
 			return
 		}
 		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error querying user")
@@ -78,12 +78,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	// Verify password
 	if !utils.CheckPasswordHash(requestData.Password, storedPassword) {
-		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "INVALID_CREDENTIALS", "Invalid username or password")
+		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "INVALID_CREDENTIALS", "Invalid nickname or password")
 		return
 	}
 
 	// Create JWE token
-	jweToken, err := utils.CreateAuthToken(userID, requestData.Username)
+	jweToken, err := utils.CreateAuthToken(userID, requestData.Nickname)
 	if err != nil {
 		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error creating auth token")
 		return

@@ -55,7 +55,7 @@ func TestHealthAndRegisterJSON(t *testing.T) {
 	}
 
 	// 2. Test /register (dopasuj klucze JSON do pól oczekiwanych przez RegisterHandler, np. login/username)
-	payload := []byte(`{"login":"test_player","password":"strongpassword123"}`)
+	payload := []byte(`{"nickname":"test_player","password":"strongpassword123"}`)
 	reqReg := httptest.NewRequest(http.MethodPost, "/register", bytes.NewReader(payload))
 	reqReg.Header.Set("Content-Type", "application/json")
 	recReg := httptest.NewRecorder()
