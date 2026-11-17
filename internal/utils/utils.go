@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -239,4 +240,42 @@ func IsTokenBlacklisted(token string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+type errorDetail struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type errorResponse struct {
+	Error errorDetail `json:"error"`
+}
+
+type successResponse struct {
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+}
+
+func ReturnErrorResponse(w http.ResponseWriter, statusCode int, errCode string, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	if statusCode != http.StatusOK {
+		w.WriteHeader(statusCode)
+	}
+	_ = json.NewEncoder(w).Encode(errorResponse{
+		Error: errorDetail{
+			Code:    errCode,
+			Message: message,
+		},
+	})
+}
+
+func ReturnSuccessResponse(w http.ResponseWriter, statusCode int, message string, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	if statusCode != http.StatusOK {
+		w.WriteHeader(statusCode)
+	}
+	_ = json.NewEncoder(w).Encode(successResponse{
+		Message: message,
+		Data:    data,
+	})
 }
