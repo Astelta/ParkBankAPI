@@ -42,7 +42,7 @@ jobs:
 
       - name: Load database schema
         run: |
-          docker exec -i postgres-test psql -v ON_ERROR_STOP=1 -U parkbank_test -d parkbank_test < schema.sql
+          docker exec -i postgres-test psql -v ON_ERROR_STOP=1 -U parkbank_test -d parkbank_test < ./db/schema.sql
 
       - name: Run tests
         env:
