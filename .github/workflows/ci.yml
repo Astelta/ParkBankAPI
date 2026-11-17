@@ -47,5 +47,5 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: postgres://parkbank_test:testpassword@localhost:5432/parkbank_test?sslmode=disable
-          JWE_SECRET: 0123456789abcdef0123456789abcdef
+          JWE_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: go test -v -race ./...

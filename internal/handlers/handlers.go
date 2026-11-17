@@ -5,10 +5,13 @@ import (
 	"astelta-api-v2/internal/utils"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -32,8 +35,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 	requestData.Password = utils.HashPassword(requestData.Password)
 
-	_, err := db.Query("INSERT INTO users (login, password) VALUES ($1, $2)", requestData.Nickname, requestData.Password)
+	_, err := db.Exec("INSERT INTO users (login, password) VALUES ($1, $2)", requestData.Nickname, requestData.Password)
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			utils.ReturnErrorResponse(w, http.StatusConflict, "USER_ALREADY_EXISTS", "Nickname is already taken")
+			return
+		}
 		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error inserting user")
 		return
 	}
