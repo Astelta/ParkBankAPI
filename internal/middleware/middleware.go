@@ -28,7 +28,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Pobranie nagłówka
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Missing Authorization header")
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "MISSING_AUTHORIZATION_HEADER", "Missing Authorization header")
 			return
 		}
 
@@ -36,25 +36,25 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 		if token == authHeader {
 			// Opcjonalnie: odrzucenie żądania, jeśli nagłówek nie zaczynał się od "Bearer "
-			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Invalid Authorization header format")
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "INVALID_AUTHORIZATION_HEADER", "Invalid Authorization header format")
 			return
 		}
 
 		// Check if the token is blacklisted
 		isBlacklisted, err := utils.IsTokenBlacklisted(token)
 		if err != nil {
-			utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error checking token blacklist")
+			utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error checking token blacklist")
 			return
 		}
 		if isBlacklisted {
-			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Token is blacklisted")
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "TOKEN_IS_BLACKLISTED", "Token is blacklisted")
 			return
 		}
 
 		// Walidacja tokena JWE
 		payload, err := utils.ValidateAuthToken(token)
 		if err != nil {
-			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Invalid or expired token")
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "INVALID_TOKEN", "Invalid or expired token")
 			return
 		}
 
