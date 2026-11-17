@@ -155,10 +155,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(profile); err != nil {
-		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error encoding profile response")
-		return
-	}
 	utils.ReturnSuccessResponse(w, http.StatusOK, "Profile retrieved successfully", profile)
 }
 
@@ -326,29 +322,21 @@ func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	//get the limit and offset from the query parameters
-	limit := r.URL.Query().Get("limit")
-	//default limit to 10 if not provided
-	if limit == "" {
-		limit = "10"
-	}
-	// hard limit to 50 to prevent abuse
-	if limitInt, err := strconv.Atoi(limit); err == nil && limitInt > 50 {
-		limit = "50"
-	}
-	offset := r.URL.Query().Get("offset")
-	//default offset to 0 if not provided
-	if offset == "" {
-		offset = "0"
-	}
+	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
 
-	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
 		utils.ReturnErrorResponse(w, http.StatusBadRequest, "INVALID_LIMIT_PARAMETER", "Invalid limit parameter")
 		return
 	}
-	offsetInt, err := strconv.Atoi(offset)
+
+	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+
 	if err != nil {
 		utils.ReturnErrorResponse(w, http.StatusBadRequest, "INVALID_OFFSET_PARAMETER", "Invalid offset parameter")
+	}
+
+	if limit < 1 || limit > 50 || offset < 0 {
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "INVALID_PAGINATION", "Limit must be between 1 and 50, and offset must be non-negative")
 		return
 	}
 
@@ -360,7 +348,7 @@ func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	// Query transactions for the user
-	rows, err := db.Query("SELECT id, sender_id, recipient_id, amount, created_at FROM transactions WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3", userID, limitInt, offsetInt)
+	rows, err := db.Query("SELECT id, sender_id, recipient_id, amount, created_at FROM transactions WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3", userID, limit, offset)
 	if err != nil {
 		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Error querying transactions")
 		return
