@@ -1,0 +1,51 @@
+name: Go CI
+
+on:
+  push:
+    branches:
+      - main
+      - json-response-format
+      - 'test/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: parkbank_test
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: parkbank_test
+        ports:
+          - 5432:5432
+        options: >-
+          --name postgres-test
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Load database schema
+        run: |
+          docker exec -i postgres-test psql -v ON_ERROR_STOP=1 -U parkbank_test -d parkbank_test < schema.sql
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgres://parkbank_test:testpassword@localhost:5432/parkbank_test?sslmode=disable
+          JWE_SECRET: 0123456789abcdef0123456789abcdef
+        run: go test -v -race ./...

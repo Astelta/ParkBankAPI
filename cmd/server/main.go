@@ -13,15 +13,12 @@ import (
 	"astelta-api-v2/internal/cronjobs"
 	"astelta-api-v2/internal/handlers"
 	"astelta-api-v2/internal/metrics"
-	"astelta-api-v2/internal/middleware"
 	"astelta-api-v2/internal/utils"
 
 	//postgres driver
 	_ "github.com/lib/pq"
 )
 
-// global variables for database connection and server start time
-var db *sql.DB
 var startTime time.Time
 
 func main() {
@@ -78,7 +75,7 @@ func main() {
 	conn.RawQuery = query.Encode()
 
 	//create connection pool
-	db, err = sql.Open("postgres", conn.String())
+	db, err := sql.Open("postgres", conn.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,44 +97,17 @@ func main() {
 		}
 	}()
 
-	//endpoints
-	http.HandleFunc("/health", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.HealthHandler(w, r)
-	}))
-	http.HandleFunc("/metrics", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.MetricsHandler(w, r, db)
-	}))
-	http.HandleFunc("/register", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.RegisterHandler(w, r, db)
-	}))
-	http.HandleFunc("/login", middleware.CorsMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.LoginHandler(w, r, db)
-	}))
-	http.HandleFunc("/profile", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.ProfileHandler(w, r, db)
-	})))
-	http.HandleFunc("/transfer", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.TransferHandler(w, r, db)
-	})))
-	http.HandleFunc("/logout", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.LogoutHandler(w, r, db)
-	})))
-	http.HandleFunc("/user", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.UserHandler(w, r, db)
-	})))
-	http.HandleFunc("/transactions", middleware.CorsMiddleware(middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handlers.TransactionsHandler(w, r, db)
-	})))
-
 	//start the cron jobs
 	cronjobs.StartAllCronJobs(db)
+
+	// Zamiast nil przekazujemy naszą instancję ServeMux
+	router := handlers.Router(db)
 
 	// Start the server
 	port := ":8097"
 	fmt.Printf("Starting API server on port %s...\n", port)
-	err = http.ListenAndServe(port, nil)
+	err = http.ListenAndServe(port, router)
 	if err != nil {
 		log.Fatalf("Error http: %v", err)
 	}
-
 }
