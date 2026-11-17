@@ -40,7 +40,6 @@ func setupTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-// doJSONRequest wysyła żądanie HTTP do routera i wymusza poprawny nagłówek oraz składnię JSON w odpowiedzi.
 func doJSONRequest(t *testing.T, router http.Handler, method, target, token string, payload any) *httptest.ResponseRecorder {
 	t.Helper()
 
@@ -75,7 +74,7 @@ func doJSONRequest(t *testing.T, router http.Handler, method, target, token stri
 	return rec
 }
 
-// extractToken wyciąga token JWE z odpowiedzi /login niezależnie od tego, czy znajduje się wewnątrz pola "data".
+// extractToken
 func extractToken(t *testing.T, body []byte) string {
 	t.Helper()
 
@@ -125,7 +124,7 @@ func TestAllEndpoints(t *testing.T) {
 		}
 	})
 
-	// 3. POST /register (rejestracja dwóch kont + próba duplikatu)
+	// 3. POST /register
 	t.Run("POST /register", func(t *testing.T) {
 		rec1 := doJSONRequest(t, router, http.MethodPost, "/register", "", user1)
 		if rec1.Code != http.StatusCreated && rec1.Code != http.StatusOK {
@@ -143,7 +142,7 @@ func TestAllEndpoints(t *testing.T) {
 		}
 	})
 
-	// 4. POST /login (poprawne logowanie + odrzucenie błędnego hasła)
+	// 4. POST /login
 	t.Run("POST /login", func(t *testing.T) {
 		recBad := doJSONRequest(t, router, http.MethodPost, "/login", "", map[string]string{
 			"nickname": user1["nickname"],
@@ -160,7 +159,7 @@ func TestAllEndpoints(t *testing.T) {
 		token1 = extractToken(t, recOK.Body.Bytes())
 	})
 
-	// 5. GET /profile (brak tokena vs poprawny token)
+	// 5. GET /profile
 	t.Run("GET /profile", func(t *testing.T) {
 		recUnauth := doJSONRequest(t, router, http.MethodGet, "/profile", "", nil)
 		if recUnauth.Code != http.StatusUnauthorized {
@@ -173,7 +172,7 @@ func TestAllEndpoints(t *testing.T) {
 		}
 	})
 
-	// 6. GET /user (wyszukiwanie po id oraz po nickname)
+	// 6. GET /user
 	t.Run("GET /user", func(t *testing.T) {
 		recByID := doJSONRequest(t, router, http.MethodGet, "/user?id=1", token1, nil)
 		if recByID.Code != http.StatusOK {
@@ -186,9 +185,8 @@ func TestAllEndpoints(t *testing.T) {
 		}
 	})
 
-	// 7. POST /transfer (przelew środków + weryfikacja sald w DB + brak środków)
+	// 7. POST /transfer
 	t.Run("POST /transfer", func(t *testing.T) {
-		// Ustawienie początkowego salda 1000 dla użytkownika o ID 1
 		if _, err := db.Exec(`UPDATE users SET balance = 1000 WHERE id = 1`); err != nil {
 			t.Fatalf("failed to seed balance: %v", err)
 		}
@@ -212,7 +210,6 @@ func TestAllEndpoints(t *testing.T) {
 			t.Fatalf("unexpected balances after transfer: sender=%d (want 750), recipient=%d (want 250)", senderBal, recipientBal)
 		}
 
-		// Próba przelania kwoty większej niż dostępne saldo
 		recInsufficient := doJSONRequest(t, router, http.MethodPost, "/transfer", token1, map[string]any{
 			"recipient_id": 2,
 			"amount":       999999,
@@ -222,7 +219,7 @@ func TestAllEndpoints(t *testing.T) {
 		}
 	})
 
-	// 8. GET /transactions (poprawna paginacja + przekroczenie limitu 50)
+	// 8. GET /transactions
 	t.Run("GET /transactions", func(t *testing.T) {
 		recOK := doJSONRequest(t, router, http.MethodGet, "/transactions?limit=10&offset=0", token1, nil)
 		if recOK.Code != http.StatusOK {
@@ -235,7 +232,7 @@ func TestAllEndpoints(t *testing.T) {
 		}
 	})
 
-	// 9. POST /logout (wylogowanie + weryfikacja, że unieważniony token nie przechodzi przez AuthMiddleware)
+	// 9. POST /logout
 	t.Run("POST /logout", func(t *testing.T) {
 		recLogout := doJSONRequest(t, router, http.MethodPost, "/logout", token1, nil)
 		if recLogout.Code != http.StatusOK {
