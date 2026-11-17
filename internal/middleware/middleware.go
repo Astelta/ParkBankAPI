@@ -15,7 +15,7 @@ func CorsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
+			utils.ReturnSuccessResponse(w, http.StatusOK, "CORS preflight request successful", nil)
 			return
 		}
 		next(w, r)
@@ -28,7 +28,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Pobranie nagłówka
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Authorization header required", http.StatusUnauthorized)
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Missing Authorization header")
 			return
 		}
 
@@ -36,25 +36,25 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 		if token == authHeader {
 			// Opcjonalnie: odrzucenie żądania, jeśli nagłówek nie zaczynał się od "Bearer "
-			http.Error(w, "Invalid authorization format", http.StatusUnauthorized)
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Invalid Authorization header format")
 			return
 		}
 
 		// Check if the token is blacklisted
 		isBlacklisted, err := utils.IsTokenBlacklisted(token)
 		if err != nil {
-			http.Error(w, "Error occurred while checking token status", http.StatusUnauthorized)
+			utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error checking token blacklist")
 			return
 		}
 		if isBlacklisted {
-			http.Error(w, "Token is blacklisted", http.StatusUnauthorized)
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Token is blacklisted")
 			return
 		}
 
 		// Walidacja tokena JWE
 		payload, err := utils.ValidateAuthToken(token)
 		if err != nil {
-			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Invalid or expired token")
 			return
 		}
 

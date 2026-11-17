@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -239,4 +240,24 @@ func IsTokenBlacklisted(token string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func ReturnErrorResponse(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]any{
+		"error": map[string]any{
+			"code":    code,
+			"message": message,
+		},
+	})
+}
+
+func ReturnSuccessResponse(w http.ResponseWriter, code int, message string, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]any{
+		"message": message,
+		"data":    data,
+	})
 }

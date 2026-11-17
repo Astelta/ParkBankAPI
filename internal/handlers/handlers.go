@@ -13,7 +13,7 @@ import (
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -22,29 +22,30 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Error decoding request body")
 		return
 	}
 
 	if requestData.Username == "" || requestData.Password == "" {
-		http.Error(w, "Username and password are required", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Username and password are required")
 		return
 	}
 	requestData.Password = utils.HashPassword(requestData.Password)
 
 	_, err := db.Query("INSERT INTO users (login, password) VALUES ($1, $2)", requestData.Username, requestData.Password)
 	if err != nil {
-		http.Error(w, "Error inserting user", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error inserting user")
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("User registered successfully"))
+	utils.ReturnSuccessResponse(w, http.StatusCreated, "User registered successfully", map[string]string{
+		"username": requestData.Username,
+	})
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -53,12 +54,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Error decoding request body")
 		return
 	}
 
 	if requestData.Username == "" || requestData.Password == "" {
-		http.Error(w, "Username and password are required", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Username and password are required")
 		return
 	}
 
@@ -68,30 +69,28 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	err := db.QueryRow("SELECT id, password FROM users WHERE login = $1", requestData.Username).Scan(&userID, &storedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+			utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Invalid username or password")
 			return
 		}
-		http.Error(w, "Error querying user", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error querying user")
 		return
 	}
 
 	// Verify password
 	if !utils.CheckPasswordHash(requestData.Password, storedPassword) {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
 
 	// Create JWE token
 	jweToken, err := utils.CreateAuthToken(userID, requestData.Username)
 	if err != nil {
-		http.Error(w, "Error creating token", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error creating auth token")
 		return
 	}
 
 	// Return the JWE token
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Login successful", map[string]string{
 		"token": jweToken,
 	})
 }
@@ -99,41 +98,41 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 // simple health check endpoint
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
-	status := "ok"
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(status))
+	utils.ReturnSuccessResponse(w, http.StatusOK, "API is healthy", map[string]string{
+		"status": "ok",
+	})
 }
 
 // MetricsHandler returns system and application metrics in JSON format
 func MetricsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	response := metrics.GetMetrics()
 
-	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Error encoding metrics", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error encoding metrics response")
 		return
 	}
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Metrics retrieved successfully", response)
 }
 
 // ProfileHandler returns the user's profile data (id and balance)
 func ProfileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	// Get user ID from headers (set by AuthMiddleware)
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
-		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "User not authenticated")
 		return
 	}
 
@@ -146,30 +145,30 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	err := db.QueryRow("SELECT id, balance FROM users WHERE id = $1", userID).Scan(&profile.ID, &profile.Balance)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "User not found", http.StatusNotFound)
+			utils.ReturnErrorResponse(w, http.StatusNotFound, "User not found")
 			return
 		}
-		http.Error(w, "Error querying user", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error querying user")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(profile); err != nil {
-		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error encoding profile response")
 		return
 	}
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Profile retrieved successfully", profile)
 }
 
 func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	// Get user ID from headers (set by AuthMiddleware)
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
-		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "User not authenticated")
 		return
 	}
 
@@ -179,13 +178,13 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		Amount      float64 `json:"amount"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Error decoding request body")
 		return
 	}
 
 	// Validate transfer details
 	if requestData.RecipientID <= 0 || requestData.Amount <= 0 {
-		http.Error(w, "Invalid recipient ID or amount", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Invalid recipient ID or amount")
 		return
 	}
 
@@ -193,11 +192,11 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var recipientExists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)", requestData.RecipientID).Scan(&recipientExists)
 	if err != nil {
-		http.Error(w, "Error querying recipient", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error querying recipient")
 		return
 	}
 	if !recipientExists {
-		http.Error(w, "Recipient not found", http.StatusNotFound)
+		utils.ReturnErrorResponse(w, http.StatusNotFound, "Recipient not found")
 		return
 	}
 
@@ -207,25 +206,26 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var senderBalance float64
 	err = tx.QueryRow("SELECT balance FROM users WHERE id = $1", userID).Scan(&senderBalance)
 	if err != nil {
-		http.Error(w, "Error querying sender balance", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error querying sender balance")
 		return
 	}
 	if senderBalance < requestData.Amount {
-		http.Error(w, "Insufficient balance", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Insufficient balance")
 		return
 	}
+
 	// Deduct amount from sender
 	_, err = tx.Exec("UPDATE users SET balance = balance - $1 WHERE id = $2", requestData.Amount, userID)
 	if err != nil {
 		tx.Rollback()
-		http.Error(w, "Error updating sender balance", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error updating sender balance")
 		return
 	}
 	// Add amount to recipient
 	_, err = tx.Exec("UPDATE users SET balance = balance + $1 WHERE id = $2", requestData.Amount, requestData.RecipientID)
 	if err != nil {
 		tx.Rollback()
-		http.Error(w, "Error updating recipient balance", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error updating recipient balance")
 		return
 	}
 
@@ -233,29 +233,32 @@ func TransferHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	_, err = tx.Exec("INSERT INTO transactions (sender_id, recipient_id, amount) VALUES ($1, $2, $3)", userID, requestData.RecipientID, requestData.Amount)
 	if err != nil {
 		tx.Rollback()
-		http.Error(w, "Error saving transaction", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error saving transaction")
 		return
 	}
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
-		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error committing transaction")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Transfer successful"))
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Transfer successful", map[string]any{
+		"sender_id":    userID,
+		"recipient_id": requestData.RecipientID,
+		"amount":       requestData.Amount,
+	})
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	// Get user ID from headers (set by AuthMiddleware)
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
-		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "User not authenticated")
 		return
 	}
 
@@ -266,17 +269,16 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	expiration := time.Now().Add(24 * time.Hour) // Assuming the token is valid for 24 hours
 	_, err := db.Exec("INSERT INTO tokens (token, user_id, expiration) VALUES ($1, $2, $3)", token, userID, expiration)
 	if err != nil {
-		http.Error(w, "Error blacklisting token", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error blacklisting token")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Logout successful"))
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Logout successful", nil)
 }
 
 func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -286,7 +288,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	// Get requested user ID from query parameters
 	if requestedUserID == "" && requestedNickname == "" {
-		http.Error(w, "User ID or nickname is required", http.StatusBadRequest)
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Missing user ID or nickname in query parameters")
 		return
 	}
 
@@ -304,20 +306,19 @@ func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "User not found", http.StatusNotFound)
+			utils.ReturnErrorResponse(w, http.StatusNotFound, "User not found")
 			return
 		}
-		http.Error(w, "Error querying user", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error querying user")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	utils.ReturnSuccessResponse(w, http.StatusOK, "User retrieved successfully", user)
 }
 
 func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		utils.ReturnErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -337,17 +338,28 @@ func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		offset = "0"
 	}
 
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Invalid limit parameter")
+		return
+	}
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		utils.ReturnErrorResponse(w, http.StatusBadRequest, "Invalid offset parameter")
+		return
+	}
+
 	// Get user ID from headers (set by AuthMiddleware)
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
-		http.Error(w, "User not authenticated", http.StatusUnauthorized)
+		utils.ReturnErrorResponse(w, http.StatusUnauthorized, "User not authenticated")
 		return
 	}
 
 	// Query transactions for the user
-	rows, err := db.Query("SELECT id, sender_id, recipient_id, amount, created_at FROM transactions WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3", userID, limit, offset)
+	rows, err := db.Query("SELECT id, sender_id, recipient_id, amount, created_at FROM transactions WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3", userID, limitInt, offsetInt)
 	if err != nil {
-		http.Error(w, "Error querying transactions", http.StatusInternalServerError)
+		utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error querying transactions")
 		return
 	}
 	defer rows.Close()
@@ -368,21 +380,20 @@ func TransactionsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			CreatedAt   time.Time `json:"created_at"`
 		}
 		if err := rows.Scan(&t.ID, &t.SenderID, &t.RecipientID, &t.Amount, &t.CreatedAt); err != nil {
-			http.Error(w, "Error scanning transaction", http.StatusInternalServerError)
+			utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error scanning transaction")
 			return
 		}
 		if rows.Err() != nil {
-			http.Error(w, "Error iterating over transactions", http.StatusInternalServerError)
+			utils.ReturnErrorResponse(w, http.StatusInternalServerError, "Error iterating over transactions")
 			return
 		}
 		transactions = append(transactions, t)
 	}
 	//check if null transactions and return 404
 	if len(transactions) == 0 {
-		http.Error(w, "No transactions found", http.StatusNotFound)
+		utils.ReturnErrorResponse(w, http.StatusNotFound, "No transactions found")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(transactions)
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Transactions retrieved successfully", transactions)
 }
