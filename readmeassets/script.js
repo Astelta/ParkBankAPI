@@ -25,7 +25,7 @@
         }
 
         function updateMetricsDashboard(data) {
-            data = data.data || data; // Handle the case where data is nested under a "Data" key
+            data = data.data || data;
             document.getElementById('uptime').textContent = data.uptime || 'N/A';
             document.getElementById('service-status').textContent = data.database_status || 'Unknown';
             const statusElement = document.getElementById('service-status');
@@ -73,13 +73,13 @@
                     const text = await response.json();
                     const endTime = performance.now();
                     const latency = (endTime - startTime).toFixed(2);
-                    element.textContent = `${text.Message}\n\nLatency: ${latency} ms`;
+                    element.textContent = `${text.message}\n\nLatency: ${latency} ms`;
                     if (endpoint === '/health') {
                         document.getElementById('health-latency').textContent = formatDuration(parseFloat(latency));
                     }
                 }
             } catch (error) {
-                element.innerHTML = `Error: ${error.Message}`;
+                element.innerHTML = `Error: ${error.message || error}`;
             }
         }
 

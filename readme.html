@@ -34,6 +34,7 @@
 
         <div class="endpoints-section" id="endpoints-section">
             <h2>API Endpoints</h2>
+            <p>Successful responses use <code>{"message": "...", "data": ...}</code>. Error responses use <code>{"error": {"code": "...", "message": "..."}}</code>.</p>
             <div class="endpoints-grid">
                 <div class="endpoint-card" id="health-check">
                     <h3>Health Check</h3>
@@ -44,7 +45,12 @@
                     <div class="payload-section">
                         <strong>Payload:</strong> None
                     </div>
-                    <div class="response-display">ok</div>
+                    <div class="response-display">{
+    "message": "API is healthy",
+    "data": {
+        "status": "ok"
+    }
+}</div>
                 </div>
 
                 <div class="endpoint-card" id="metrics">
@@ -57,17 +63,44 @@
                         <strong>Payload:</strong> None
                     </div>
                     <div class="response-display">{
-    "uptime": "1h23m45s",
-    "db_latency_ms": 12,
-    "health_latency_ms": 0.5,
-    "cpu_count": 8,
-    "goroutines": 15,
-    "max_procs": 8,
-    "memory_alloc_mb": 45.2,
-    "memory_total_mb": 120.5,
-    "memory_sys_mb": 55.8,
-    "gc_count": 3,
-    "go_version": "go1.25.3"
+    "message": "Metrics retrieved successfully",
+    "data": {
+        "uptime": "293.2373ms",
+        "database_status": "connected",
+        "database_latency_ms": 24,
+        "goroutines": 2,
+        "cpu_count": 12,
+        "max_procs": 12,
+        "go_version": "go1.26.5",
+        "memory_stats": {
+            "alloc_bytes": 743512,
+            "total_alloc_bytes": 743512,
+            "sys_bytes": 6836224,
+            "lookups": 0,
+            "mallocs": 2668,
+            "frees": 86,
+            "heap_alloc_bytes": 743512,
+            "heap_sys_bytes": 4030464,
+            "heap_idle_bytes": 2637824,
+            "heap_inuse_bytes": 1392640,
+            "heap_released_bytes": 2637824,
+            "heap_objects": 2582,
+            "stack_inuse_bytes": 163840,
+            "stack_sys_bytes": 163840,
+            "gc_sys_bytes": 1903120,
+            "next_gc_bytes": 4194304,
+            "last_gc": "1970-01-01T01:00:00+01:00",
+            "num_gc": 0
+        },
+        "system_memory": {
+            "total_bytes": 16873545728,
+            "available_bytes": 708325376,
+            "used_bytes": 16165220352,
+            "used_percent": 95.80215452390304
+        },
+        "timestamp": "2026-11-17T20:41:08.1543016+01:00",
+        "postgres_version": "PostgreSQL 17.11"
+    }
 }</div>
                 </div>
 
@@ -84,7 +117,12 @@
     "password": "secure_password123"
 }</pre>
                     </div>
-                    <div class="response-display">User registered successfully</div>
+                    <div class="response-display">{
+    "message": "User registered successfully",
+    "data": {
+        "nickname": "example_user"
+    }
+}</div>
                 </div>
 
                 <div class="endpoint-card" id="user-login">
@@ -101,7 +139,10 @@
 }</pre>
                     </div>
                     <div class="response-display">{
-    "token": "eyJhbGciOiJBRVNFTC1HQ00iLCJlbmMiOiJBMjU2R0NNIiwidmYiOiJBUkQxMjM0NTY3ODkwIiwiY3QiOiJBMTIzNDU2Nzg5MCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImV4YW1wbGVfdXNlciIsInRva2VuIjoiZXhhbXBsZV90b2tlbl8xMjM0NTY3ODkiLCJleHBpcmF0aW9uIjoxNzA0OTY3NjAwfQ.abc123def456..."
+    "message": "Login successful",
+    "data": {
+        "token": "eyJhbGciOiJBRVNFTC1HQ00iLCJlbmMiOiJBMjU2R0NNIiwidmYiOiJBUkQxMjM0NTY3ODkwIiwiY3QiOiJBMTIzNDU2Nzg5MCJ9..."
+    }
 }</div>
                 </div>
 
@@ -116,8 +157,11 @@
                         <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
                     </div>
                     <div class="response-display">{
-    "id": 1,
-    "balance": 100.50
+    "message": "Profile retrieved successfully",
+    "data": {
+        "id": 1,
+        "balance": 100
+    }
 }</div>
                 </div>
                 <div class="endpoint-card auth-required" id="transfer-funds">
@@ -135,7 +179,14 @@
     "amount": 50.00
 }</pre>
                     </div>
-                    <div class="response-display">Transfer successful</div>
+                    <div class="response-display">{
+    "message": "Transfer successful",
+    "data": {
+        "sender_id": "1",
+        "recipient_id": 2,
+        "amount": 50
+    }
+}</div>
                 </div>
                 <div class="endpoint-card auth-required" id="user-logout">
                 <h3>User Logout</h3>
@@ -147,7 +198,12 @@
                     <strong>Headers:</strong>
                     <pre>Authorization: Bearer &lt;jwe_token&gt;</pre>
                 </div>
-                <div class="response-display">Logout successful</div>
+                <div class="response-display">{
+    "message": "Logout successful"
+     "data": {
+        "status": "ok"
+    }
+}</div>
 
             </div>
 
@@ -168,8 +224,11 @@
 </pre>
                 </div>
                 <div class="response-display">{
-    "id": 1,
-    "nickname": "john_doe"
+    "message": "User retrieved successfully",
+    "data": {
+        "id": 1,
+        "nickname": "john_doe"
+    }
 }</div>
             </div>
        <div class="endpoint-card auth-required" id="transactions">
@@ -184,23 +243,18 @@
                     <strong>Payload /GET:</strong> <pre>
     parkbankapi.com/transactions?limit=10&offset=0</pre>
                 </div>
-                <div class="response-display">[
-  {
-    "id": 36,
-    "sender_id": 10,
-    "recipient_id": 5,
-    "amount": 1983819,
-    "created_at": "2026-11-15T04:58:20.100656Z"
-  },
-  {
-    "id": 37,
-    "sender_id": 5,
-    "recipient_id": 10,
-    "amount": 1983819,
-    "created_at": "2026-11-15T04:58:20.100656Z"
-  },etc...
-]
-        </div>
+                <div class="response-display">{
+    "message": "Transactions retrieved successfully",
+    "data": [
+        {
+            "id": 36,
+            "sender_id": 10,
+            "recipient_id": 5,
+            "amount": 1983819,
+            "created_at": "2026-11-15T04:58:20.100656Z"
+        }
+    ]
+}</div>
     </div>
 </div>
             

@@ -272,7 +272,9 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	utils.ReturnSuccessResponse(w, http.StatusOK, "Logout successful", nil)
+	utils.ReturnSuccessResponse(w, http.StatusOK, "Logout successful", map[string]string{
+		"status": "ok",
+	})
 }
 
 func UserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
